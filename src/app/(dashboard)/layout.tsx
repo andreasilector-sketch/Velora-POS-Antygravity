@@ -27,6 +27,7 @@ import {
   Receipt
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GlobalScanner } from "@/components/global/GlobalScanner";
 
 export default function DashboardLayout({
   children,
@@ -316,6 +317,7 @@ export default function DashboardLayout({
              children
           )}
         </div>
+        <GlobalScanner />
       </main>
     </div>
   );

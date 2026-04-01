@@ -108,8 +108,6 @@ function AdvancedPOSPage() {
   const [isClientSearchOpen, setIsClientSearchOpen] = useState(false);
   const [bankAccounts, setBankAccounts] = useState<any[]>([]);
   const [selectedBankId, setSelectedBankId] = useState<string>("");
-  const [barcodeBuffer, setBarcodeBuffer] = useState("");
-  const [lastKeyTime, setLastKeyTime] = useState(0);
 
   const [promotions, setPromotions] = useState<any[]>([]);
   const [isNewClientOpen, setIsNewClientOpen] = useState(false);
@@ -151,39 +149,16 @@ function AdvancedPOSPage() {
 
   // Barcode Scanner Listener
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' && !target.classList.contains('barcode-capture')) {
-        return;
+    const handleGlobalScan = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const buffer = customEvent.detail.barcode;
+      const product = productsRef.current.find(p => p.codigo_barras === buffer || p.sku === buffer);
+      if (product) {
+        addToCart(product);
       }
-
-      setLastKeyTime(prevTime => {
-        const currentTime = Date.now();
-        if (currentTime - prevTime > 50) {
-          setBarcodeBuffer("");
-        }
-        
-        if (e.key === 'Enter') {
-          setBarcodeBuffer(buffer => {
-            if (buffer.length > 2) {
-              const product = productsRef.current.find(p => p.codigo_barras === buffer || p.sku === buffer);
-              if (product) {
-                addToCart(product);
-                return "";
-              }
-            }
-            return "";
-          });
-        } else if (e.key.length === 1) {
-          setBarcodeBuffer(prev => prev + e.key);
-        }
-        
-        return currentTime;
-      });
     };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('global-barcode-scanned', handleGlobalScan);
+    return () => window.removeEventListener('global-barcode-scanned', handleGlobalScan);
   }, []); // Solamente se monta una vez
 
   const fetchPromotions = async () => {
@@ -562,7 +537,7 @@ function AdvancedPOSPage() {
       </div>
 
       {/* SECCIÓN DERECHA: CARRITO Y ACCIONES */}
-      <div className="w-full xl:w-[480px] 2xl:w-[550px] flex flex-col gap-3 xl:gap-4 shrink-0 h-[50vh] xl:h-auto">
+      <div className="w-full xl:w-[480px] 2xl:w-[550px] flex flex-col gap-3 xl:gap-4 shrink-0 h-[50vh] xl:h-[calc(100vh-5rem)] xl:sticky xl:top-0 self-start">
         <Card className="flex-1 flex flex-col border-slate-200 shadow-xl rounded-3xl overflow-hidden bg-white min-h-0">
           <div className="p-4 xl:p-6 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
