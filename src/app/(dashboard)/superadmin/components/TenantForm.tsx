@@ -97,7 +97,7 @@ export function TenantForm({ onSave, onCancel }: any) {
 
             <div className="space-y-2">
               <Label className="font-bold text-slate-700 ml-1 text-xs">Plan de Suscripción</Label>
-              <Select onValueChange={(val) => { if (val) setValue("plan", val); }} defaultValue="basico">
+              <Select onValueChange={(val: string | null) => { if (val) setValue("plan", val); }} defaultValue="basico">
                 <SelectTrigger className="h-11 border-slate-200 bg-white rounded-xl focus:ring-purple-500">
                   <SelectValue placeholder="Seleccionar plan" />
                 </SelectTrigger>

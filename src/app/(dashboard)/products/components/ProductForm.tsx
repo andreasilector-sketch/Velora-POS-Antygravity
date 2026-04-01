@@ -362,7 +362,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
 
               <div className="space-y-1">
                  <Label className="font-black text-slate-700 text-sm mb-1 block">Impuesto</Label>
-                 <Select onValueChange={(val: string | null) => setValue("impuesto_porcentaje", Number(val || 0), { shouldDirty: true })} value={String(watch("impuesto_porcentaje") || 0)}>
+                 <Select onValueChange={(val: string | null) => setValue("impuesto_porcentaje", Number(val), { shouldDirty: true })} value={String(watch("impuesto_porcentaje") || 0)}>
                    <SelectTrigger className="h-11 border-slate-200 bg-white rounded-xl text-base font-bold text-slate-700 shadow-sm">
                      <SelectValue placeholder="Ninguno (0%)" />
                    </SelectTrigger>

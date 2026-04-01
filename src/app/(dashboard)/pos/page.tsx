@@ -945,7 +945,7 @@ function AdvancedPOSPage() {
                                     {selectedMethod === 'transferencia' && (
                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                                           <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Cuenta de Destino</Label>
-                                          <Select value={selectedBankId} onValueChange={(val) => setSelectedBankId(val || "")}>
+                                          <Select value={selectedBankId} onValueChange={(val: string | null) => setSelectedBankId(val || "")}>
                                              <SelectTrigger className="h-12 bg-white border-2 border-slate-100 rounded-xl font-bold text-slate-700 w-full px-4">
                                                 <SelectValue>
                                                    {bankAccounts.find(a => a.id === selectedBankId)?.nombre_banco || "Seleccionar cuenta"}

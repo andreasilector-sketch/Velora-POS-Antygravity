@@ -15,7 +15,7 @@
 
 ## 📍 Current Trajectory
 
-- **Paso activo:** [Verified & Polished] 🪐 Agregada funcionalidad de Fecha de Vencimiento en productos de venta. Incluye migración DB, tipos, UI y sincronización con GitHub.
+- **Paso activo:** [Verified & Polished] 🪐 Auditoría Global de Tipos TS: Corregidos todos los manejadores onValueChange en Select (ProductForm, TenantForm, POS, CustomerForm) para soportar string | null.
 
 ## 👥 Squad Status
 
