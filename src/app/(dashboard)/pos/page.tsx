@@ -539,67 +539,67 @@ function AdvancedPOSPage() {
       {/* SECCIÓN DERECHA: CARRITO Y ACCIONES */}
       <div className="w-full xl:w-[480px] 2xl:w-[550px] flex flex-col gap-3 xl:gap-4 shrink-0 h-[50vh] xl:h-[calc(100vh-5rem)] xl:sticky xl:top-0 self-start">
         <Card className="flex-1 flex flex-col border-slate-200 shadow-xl rounded-3xl overflow-hidden bg-white min-h-0">
-          <div className="p-4 xl:p-6 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-               <div className="p-2 bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-100">
-                  <ShoppingCart className="w-5 h-5" />
+          <div className="p-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+               <div className="p-1.5 bg-emerald-600 text-white rounded-lg shadow-md shadow-emerald-100">
+                  <ShoppingCart className="w-4 h-4" />
                </div>
-               <h2 className="text-xl font-black text-slate-800">Checkout</h2>
+               <h2 className="text-lg font-black text-slate-800">Checkout</h2>
             </div>
-            <Button variant="ghost" size="sm" className="text-rose-500 font-bold hover:bg-rose-50" onClick={() => setCart([])}>Vaciar</Button>
+            <Button variant="ghost" size="default" className="text-white bg-rose-500 font-bold hover:bg-rose-600 px-4 rounded-xl uppercase tracking-widest text-xs" onClick={() => setCart([])}>Vaciar</Button>
           </div>
 
           <ScrollArea className="flex-1">
-            <div className="p-4 space-y-3" key={cart.length === 0 ? "empty" : "items"}>
+            <div className="p-3 space-y-2" key={cart.length === 0 ? "empty" : "items"}>
                {cart.length > 0 ? (
                    cart.map((item) => (
-                    <div key={`cart-item-${item.id}`} className="flex flex-col gap-3 p-4 border border-slate-200 rounded-2xl bg-white shadow-sm">
+                    <div key={`cart-item-${item.id}`} className="flex flex-col gap-2 p-3 border border-slate-200 rounded-xl bg-white shadow-sm hover:border-emerald-200 transition-colors">
                        {/* Item Name + Delete */}
-                       <div className="flex justify-between items-start gap-3">
-                          <p className="font-black text-slate-800 text-lg leading-tight flex-1">
+                       <div className="flex justify-between items-start gap-2">
+                          <p className="font-black text-slate-800 text-sm leading-tight flex-1">
                              <span>{item.nombre}</span>
                           </p>
-                          <X className="w-6 h-6 text-slate-300 hover:text-rose-500 cursor-pointer flex-shrink-0" onClick={() => updateQty(item.id, -item.qty)} />
+                          <X className="w-5 h-5 text-slate-300 hover:text-rose-500 cursor-pointer flex-shrink-0" onClick={() => setCart(prev => applyPromotions(prev.filter(i => i.id !== item.id)))} />
                        </div>
-                       <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-1 xl:gap-2 bg-slate-50 rounded-2xl p-1.5 xl:p-2 border border-slate-100">
-                             <Button variant="ghost" size="icon" className="h-10 w-10 xl:h-14 xl:w-14 rounded-xl bg-white shadow-sm border border-slate-100" onClick={() => updateQty(item.id, -1)}><Minus className="w-4 h-4 xl:w-6 xl:h-6" /></Button>
-                             <span className="w-10 xl:w-16 text-center font-black text-slate-700 text-2xl xl:text-4xl leading-none">
+                       <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1 bg-slate-50 rounded-xl p-1 border border-slate-100">
+                             <Button variant="ghost" size="icon" className="h-8 w-8 xl:h-10 xl:w-10 rounded-lg bg-white shadow-sm border border-slate-100" onClick={() => updateQty(item.id, -1)}><Minus className="w-3 h-3 xl:w-4 xl:h-4" /></Button>
+                             <span className="w-8 xl:w-12 text-center font-black text-slate-700 text-lg xl:text-xl leading-none">
                                 <span>{item.qty}</span>
                              </span>
-                             <Button variant="ghost" size="icon" className="h-10 w-10 xl:h-14 xl:w-14 rounded-xl bg-white shadow-sm border border-slate-100" onClick={() => updateQty(item.id, 1)}><Plus className="w-4 h-4 xl:w-6 xl:h-6" /></Button>
+                             <Button variant="ghost" size="icon" className="h-8 w-8 xl:h-10 xl:w-10 rounded-lg bg-white shadow-sm border border-slate-100" onClick={() => updateQty(item.id, 1)}><Plus className="w-3 h-3 xl:w-4 xl:h-4" /></Button>
                           </div>
 
-                          <div className="flex flex-col items-end gap-1.5 xl:gap-2">
+                          <div className="flex flex-col items-end gap-1">
                               <div className="flex flex-col items-end gap-1">
                                  {item.precio_minimo > 0 && (
-                                    <div className="flex items-center gap-2 mb-1">
-                                       <span className="text-xs font-black text-slate-400 uppercase tracking-tight">
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">
                                           P. Mín: <span>{formatCurrency(item.precio_minimo)}</span>
                                        </span>
                                        <button 
                                           onClick={() => applyFloorPrice(item.id)}
-                                          className="px-2 py-0.5 bg-rose-50 text-rose-600 text-xs font-black rounded-md border border-rose-100 hover:bg-rose-600 hover:text-white transition-colors uppercase"
+                                          className="px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded border border-rose-100 hover:bg-rose-600 hover:text-white transition-colors uppercase"
                                        >
                                           <span>Piso</span>
                                        </button>
                                     </div>
                                  )}
                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-black text-rose-400 uppercase tracking-tighter">DTO %:</span>
+                                    <span className="text-[10px] font-black text-rose-400 uppercase tracking-tighter">DTO %:</span>
                                     <input
                                        type="number"
                                        value={item.manualDiscountPercent === undefined ? (Number(item.descuento || 0)) : item.manualDiscountPercent}
                                        onChange={(e) => updateDiscount(item.id, Number(e.target.value))}
-                                       className="w-16 h-10 rounded-lg border border-slate-200 text-base font-bold text-center focus:ring-rose-500 focus:border-rose-500 bg-white"
+                                       className="w-12 h-6 rounded border border-slate-200 text-xs font-bold text-center focus:ring-rose-500 focus:border-rose-500 bg-white p-0"
                                     />
                                  </div>
                               </div>
                               <div className="text-right">
-                                 <p className="text-xs xl:text-sm text-slate-400 font-bold uppercase line-through opacity-50 mb-0.5">
+                                 <p className="text-[10px] xl:text-xs text-slate-400 font-bold uppercase line-through opacity-50 mb-0.5">
                                     <span>{formatCurrency(item.precio_venta * item.qty)}</span>
                                  </p>
-                                 <p className="text-xl xl:text-2xl font-black text-emerald-700 leading-none">
+                                 <p className="text-base xl:text-lg font-black text-emerald-700 leading-none">
                                     <span>{formatCurrency((item.precio_venta * item.qty) - item.discount)}</span>
                                  </p>
                               </div>
@@ -608,53 +608,53 @@ function AdvancedPOSPage() {
                     </div>
                   ))
                ) : (
-                  <div className="flex flex-col items-center justify-center py-24 opacity-20 group">
-                     <div className="p-10 bg-slate-100 rounded-full mb-6 group-hover:bg-emerald-50 transition-colors">
-                        <ShoppingCart className="w-20 h-20 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                  <div className="flex flex-col items-center justify-center py-16 opacity-20 group">
+                     <div className="p-8 bg-slate-100 rounded-full mb-4 group-hover:bg-emerald-50 transition-colors">
+                        <ShoppingCart className="w-16 h-16 text-slate-400 group-hover:text-emerald-500 transition-colors" />
                      </div>
-                     <p className="font-black text-slate-400 italic">Carro Vacío</p>
+                     <p className="font-black text-slate-400 italic text-sm">Carro Vacío</p>
                   </div>
                )}
             </div>
           </ScrollArea>
 
-          <div className="p-4 bg-slate-50/50 border-t border-slate-100 space-y-3">
-            <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-emerald-200 transition-all cursor-pointer shadow-sm" onClick={() => setIsClientSearchOpen(true)}>
+          <div className="p-3 bg-slate-50/50 border-t border-slate-100 space-y-2 shrink-0">
+            <div className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:border-emerald-200 transition-all cursor-pointer shadow-sm" onClick={() => setIsClientSearchOpen(true)}>
                <div className="flex items-center gap-3">
-                  <div className={cn("p-2.5 rounded-xl transition-all", selectedClient ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-400")}>
-                     <User className="w-6 h-6" />
+                  <div className={cn("p-2 rounded-lg transition-all", selectedClient ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-400")}>
+                     <User className="w-5 h-5" />
                   </div>
                   <div className="flex flex-col">
-                     <span className={cn("text-sm font-black uppercase tracking-tight", selectedClient ? "text-slate-800" : "text-slate-400")}>
+                     <span className={cn("text-xs font-black uppercase tracking-tight", selectedClient ? "text-slate-800" : "text-slate-400")}>
                         {selectedClient ? selectedClient.nombre : "Venta General"}
                      </span>
-                     <span className="text-xs font-bold text-slate-400">
-                        {selectedClient ? `DOC: ${selectedClient.documento || "???"}` : "Toca para vincular cliente"}
+                     <span className="text-[10px] font-bold text-slate-400">
+                        {selectedClient ? `DOC: ${selectedClient.documento || "???"}` : "Toca para vincular"}
                      </span>
                   </div>
                </div>
                <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 text-emerald-500 hover:bg-emerald-50 rounded-lg"
+                  className="h-7 w-7 text-emerald-500 hover:bg-emerald-50 rounded-md"
                   onClick={(e) => { e.stopPropagation(); setIsNewClientOpen(true); }}
                >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3 h-3" />
                </Button>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between text-slate-500 text-base font-bold">
+            <div className="space-y-1">
+              <div className="flex justify-between text-slate-500 text-sm font-bold">
                 <span>Subtotal</span><span>{formatCurrency(subtotal)}</span>
               </div>
               {totalDiscount > 0 && (
-                <div className="flex justify-between text-rose-500 text-base font-bold">
+                <div className="flex justify-between text-rose-500 text-sm font-bold">
                   <span>Descuentos</span><span>-{formatCurrency(totalDiscount)}</span>
                 </div>
               )}
               <div className="flex justify-between items-center pt-2 border-t border-slate-100">
-                <span className="text-slate-900 font-black text-2xl">Total</span>
-                <span className="text-4xl font-black text-emerald-600 tracking-tighter">{formatCurrency(total)}</span>
+                <span className="text-slate-900 font-black text-xl">Total</span>
+                <span className="text-3xl font-black text-emerald-600 tracking-tighter">{formatCurrency(total)}</span>
               </div>
             </div>
 
@@ -668,13 +668,13 @@ function AdvancedPOSPage() {
                  setIsPaymentOpen(true);
                }}
                className={cn(
-                 "w-full h-16 rounded-2xl text-2xl font-black shadow-lg shadow-emerald-200 transition-all active:scale-95",
+                 "w-full h-14 rounded-xl text-lg font-black shadow-lg shadow-emerald-200 transition-all active:scale-95 uppercase tracking-widest",
                  activeSession 
                    ? "bg-emerald-600 hover:bg-emerald-700 text-white" 
                    : "bg-slate-900 hover:bg-slate-800 text-white"
                )}
             >
-               {cart.length === 0 ? "CARRO VACÍO" : activeSession ? "PAGAR AHORA" : "ABRIR CAJA PRIMERO"}
+               {cart.length === 0 ? "Carro Vacío" : activeSession ? "Pagar Ahora" : "Abrir Caja"}
             </Button>
           </div>
         </Card>

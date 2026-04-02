@@ -124,10 +124,9 @@ export function GlobalScanner() {
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogContent className="sm:max-w-md bg-white border-0 rounded-[2.5rem] shadow-[0_35px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden p-0">
-        <div className="relative">
+      <DialogContent className="sm:max-w-md bg-white border-0 rounded-[2.5rem] shadow-[0_35px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden p-0 max-h-[85vh] flex flex-col">
           {/* Header */}
-          <div className="bg-emerald-600 p-6 text-white flex justify-between items-center relative overflow-hidden">
+          <div className="bg-emerald-600 p-6 text-white flex justify-between items-center relative overflow-hidden shrink-0">
              <div className="relative z-10 flex items-center gap-4">
                 <div className="p-3 bg-white/20 rounded-[1.25rem] backdrop-blur-md">
                    <Search className="w-6 h-6" />
@@ -143,7 +142,7 @@ export function GlobalScanner() {
              <div className="absolute -top-12 -right-12 w-64 h-64 bg-emerald-500/30 rounded-full blur-[80px] pointer-events-none" />
           </div>
 
-          <div className="p-8">
+          <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-10 gap-4">
                  <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
@@ -248,7 +247,7 @@ export function GlobalScanner() {
               </div>
             )}
           </div>
-        </div>
+          </div>
       </DialogContent>
     </Dialog>
   );
