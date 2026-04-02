@@ -900,13 +900,13 @@ function AdvancedPOSPage() {
                            )}
 
                            {(selectedMethod === "tarjeta" || selectedMethod === "credito_cliente") && (
-                              <div className="flex flex-col items-center justify-center p-24 bg-slate-50/50 rounded-[4rem] border-2 border-slate-100 border-dashed animate-in fade-in duration-700 mx-auto">
-                                 <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl mb-10 relative">
+                              <div className="flex flex-col items-center justify-center p-12 bg-slate-50/50 rounded-[2.5rem] border-2 border-slate-100 border-dashed animate-in fade-in duration-700 mx-auto w-full max-w-lg">
+                                 <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl mb-8 relative">
                                     <div className="absolute inset-0 bg-emerald-500/10 rounded-full animate-ping duration-[2000ms]" />
-                                    {selectedMethod === 'tarjeta' ? <CreditCard className="w-20 h-20 text-slate-400 group-hover:text-emerald-500 transition-colors relative z-10" /> : <ShieldCheck className="w-12 h-12 text-emerald-500 relative z-10" />}
+                                    {selectedMethod === 'tarjeta' ? <CreditCard className="w-12 h-12 text-slate-400 group-hover:text-emerald-500 transition-colors relative z-10" /> : <ShieldCheck className="w-10 h-10 text-emerald-500 relative z-10" />}
                                  </div>
-                                 <h4 className="font-black text-slate-800 text-3xl tracking-tighter mb-4 text-center">Registro de {selectedMethod === 'tarjeta' ? 'Tarjeta' : 'Crédito'}</h4>
-                                 <p className="text-slate-500 font-bold text-center text-base max-w-sm px-4 leading-relaxed opacity-60">
+                                 <h4 className="font-black text-slate-800 text-2xl tracking-tighter mb-2 text-center uppercase">Registro de {selectedMethod === 'tarjeta' ? 'Tarjeta' : 'Crédito'}</h4>
+                                 <p className="text-slate-500 font-bold text-center text-sm max-w-sm px-4 leading-relaxed opacity-60">
                                     {selectedMethod === 'tarjeta' ? 'Pasa la tarjeta por el datáfono externo y confirma el éxito de la operación.' : 'El monto se cargará automáticamente al cupo disponible del cliente.'}
                                  </p>
                               </div>
