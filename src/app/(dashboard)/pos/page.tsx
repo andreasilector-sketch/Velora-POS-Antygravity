@@ -145,6 +145,17 @@ function AdvancedPOSPage() {
   const productsRef = useRef(products);
   useEffect(() => {
     productsRef.current = products;
+    if (products.length > 0) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const addId = urlParams.get('add');
+      if (addId) {
+        const prod = products.find(p => p.id === addId);
+        if (prod) {
+          addToCart(prod);
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      }
+    }
   }, [products]);
 
   // Barcode Scanner Listener
@@ -447,6 +458,17 @@ function AdvancedPOSPage() {
     }
   };
 
+  const filteredProducts = products.filter(p => {
+    if (!searchTerm) return false;
+    const s = normalizeText(searchTerm);
+    return normalizeText(p.nombre).includes(s) || 
+           (p.sku && normalizeText(p.sku).includes(s)) ||
+           (p.codigo_barras && normalizeText(p.codigo_barras).includes(s)) ||
+           (p.sintomas_alivia && normalizeText(p.sintomas_alivia).includes(s)) ||
+           (p.beneficios && normalizeText(p.beneficios).includes(s)) ||
+           (p.ingredientes && normalizeText(p.ingredientes).includes(s));
+  });
+
   return (
     <div className="flex flex-col xl:flex-row h-full gap-3 xl:gap-4 font-sans">
       {/* SECCIÓN IZQUIERDA: PRODUCTOS */}
@@ -481,15 +503,7 @@ function AdvancedPOSPage() {
 
         <ScrollArea className="flex-1">
            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
-              {products.filter(p => {
-                const s = normalizeText(searchTerm);
-                return normalizeText(p.nombre).includes(s) || 
-                       (p.sku && normalizeText(p.sku).includes(s)) ||
-                       (p.codigo_barras && normalizeText(p.codigo_barras).includes(s)) ||
-                       (p.sintomas_alivia && normalizeText(p.sintomas_alivia).includes(s)) ||
-                       (p.beneficios && normalizeText(p.beneficios).includes(s)) ||
-                       (p.ingredientes && normalizeText(p.ingredientes).includes(s));
-              }).map(p => (
+              {filteredProducts.map(p => (
                 <Card 
                   key={p.id} 
                   className="cursor-pointer border-slate-200 hover:border-emerald-500 hover:shadow-md transition-all active:scale-95 group overflow-hidden bg-white relative"
@@ -534,7 +548,24 @@ function AdvancedPOSPage() {
                   </CardContent>
                 </Card>
               ))}
-           </div>
+            </div>
+            {!searchTerm && (
+              <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-24 h-24 mb-6 relative">
+                   <div className="absolute inset-0 bg-emerald-100 rounded-full animate-pulse opacity-50" />
+                   <BrainCircuit className="absolute inset-0 m-auto w-10 h-10 text-emerald-600" />
+                </div>
+                <h3 className="text-2xl font-black tracking-tight text-slate-800">IA Inteligencia Saludable</h3>
+                <p className="text-sm font-bold text-slate-500 mt-2 max-w-xs">Escribe un síntoma ("dolor"), un beneficio ("energía") o escanea un producto para prescribir.</p>
+              </div>
+            )}
+            {searchTerm && filteredProducts.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 opacity-50">
+                <Package className="w-16 h-16 mb-4 text-slate-300" />
+                <h3 className="text-xl font-black tracking-tight text-slate-600">No hay resultados</h3>
+                <p className="text-sm font-bold text-slate-400 mt-1">Busca por nombre, SKU, beneficio o síntoma.</p>
+              </div>
+            )}
         </ScrollArea>
       </div>
 
@@ -681,10 +712,10 @@ function AdvancedPOSPage() {
 
       {/* DIALOGO DE PAGO */}
       <Dialog open={isPaymentOpen} onOpenChange={setIsPaymentOpen}>
-         <DialogContent className="!max-w-[70rem] !w-[95vw] rounded-[3.5rem] border-none shadow-[0_35px_120px_-20px_rgba(0,0,0,0.4)] p-0 overflow-hidden bg-white text-slate-900 border-none">
-            <div className="w-full h-full flex flex-col min-h-[80vh] lg:min-h-0">
+         <DialogContent className="!max-w-4xl !w-[95vw] rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white text-slate-900">
+            <div className="w-full flex flex-col max-h-[85vh]">
             {/* CABECERA COMPACTA PREMUM */}
-            <div className="bg-emerald-600 p-6 text-white flex justify-between items-center relative overflow-hidden">
+            <div className="bg-emerald-600 p-5 text-white flex justify-between items-center relative overflow-hidden">
                <div className="relative z-10 flex items-center gap-4">
                   <div className="p-3 bg-white/20 rounded-[1.25rem] backdrop-blur-md">
                      <CheckCircle2 className="w-6 h-6" />
@@ -704,9 +735,9 @@ function AdvancedPOSPage() {
                <div className="absolute -top-12 -right-12 w-64 h-64 bg-emerald-500/30 rounded-full blur-[80px] pointer-events-none" />
             </div>
 
-            <div className="flex flex-col lg:flex-row flex-1 min-h-[600px] overflow-hidden">
+            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                {/* SIDEBAR IZQUIERDO: CONFIGURACIÓN (280px) */}
-               <div className="w-full lg:w-80 bg-slate-50 border-r border-slate-100 p-8 space-y-8 flex flex-col shadow-[inset_-1px_0_0_0_rgba(0,0,0,0.03)]">
+               <div className="w-full lg:w-72 bg-slate-50 border-r border-slate-100 p-6 space-y-6 flex flex-col shadow-[inset_-1px_0_0_0_rgba(0,0,0,0.03)] overflow-y-auto">
                   <div className="space-y-3">
                      <Label className="font-black text-slate-400 uppercase text-base tracking-[0.2em] ml-1">Modo de Pago</Label>
                      <div className="relative group">
@@ -783,32 +814,33 @@ function AdvancedPOSPage() {
                </div>
 
                {/* ÁREA PRINCIPAL: ACCIÓN DINÁMICA */}
-               <div className="flex-1 p-12 bg-white flex flex-col overflow-y-auto">
+               <div className="flex-1 p-8 bg-white flex flex-col overflow-y-auto">
                   <Tabs value={paymentType} onValueChange={(v:any) => setPaymentType(v)} className="w-full flex-1 flex flex-col">
                      {/* El Listado desaparece de aqui y se maneja por el select */}
                      <TabsContent value="single" className="flex-1 animate-in fade-in slide-in-from-right-10 duration-500 mt-0 outline-none">
-                        <div className="max-w-3xl mx-auto space-y-12">
+                        <div className="max-w-xl mx-auto space-y-12">
                            {selectedMethod === "efectivo" && (
-                              <div className="space-y-10">
-                                 <div className="text-center space-y-2">
-                                    <h3 className="text-4xl font-black text-slate-800 tracking-tighter">Procesar Efectivo</h3>
-                                    <p className="text-slate-400 font-bold text-sm uppercase tracking-[0.3em]">Ingresa el monto entregado por el cliente</p>
+                              <div className="space-y-8">
+                                 <div className="text-center space-y-2 mt-6">
+                                    <h3 className="text-3xl font-black text-slate-800 tracking-tighter">Procesar Efectivo</h3>
+                                    <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em]">Ingresa el monto entregado por el cliente</p>
                                  </div>
 
                                  <div className="relative group">
                                     <div className="absolute inset-0 bg-emerald-500/5 blur-3xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                                    <span className="absolute left-10 top-1/2 -translate-y-1/2 text-5xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors pointer-events-none">$</span>
+                                    <span className="absolute left-8 top-1/2 -translate-y-1/2 text-4xl font-black text-slate-200 group-focus-within:text-emerald-500 transition-colors pointer-events-none">$</span>
                                     <Input 
                                        value={cashReceived}
                                        type="text"
                                        autoFocus
                                        inputMode="decimal"
                                        autoComplete="off"
+                                       onFocus={(e) => e.target.select()}
                                        onChange={(e) => setCashReceived(formatNumberWithDots(e.target.value))}
-                                       className="h-40 pl-24 !text-8xl font-black text-slate-900 border-4 border-slate-100 bg-white focus:bg-white focus:ring-emerald-500 focus:border-emerald-500 rounded-[3rem] shadow-2xl text-right pr-12 transition-all relative z-10 placeholder:text-slate-100"
+                                       className="h-28 pl-16 !text-6xl font-black text-slate-900 border-2 border-slate-200 bg-white focus:bg-white focus:ring-emerald-500 focus:border-emerald-500 rounded-[2rem] shadow-xl text-right pr-8 transition-all relative z-10 placeholder:text-slate-200 placeholder:opacity-50"
                                        placeholder="0"
                                     />
-                                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-6 py-1 bg-slate-900 text-white rounded-full text-sm font-black uppercase tracking-[0.4em] z-20 shadow-xl">
+                                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] z-20 shadow-md">
                                        Esperando Entrada
                                     </div>
                                  </div>

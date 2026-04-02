@@ -284,11 +284,11 @@ export function ProductForm({ product, onSave, onCancel }: any) {
               </div>
               <div className="space-y-1">
                 <Label className="font-black text-sky-700 ml-1 flex items-center justify-between text-sm">Stock Actual <Badge className="bg-sky-500 text-white border-none text-[8px] px-1 font-black">NUEVO</Badge></Label>
-                <Input type="number" inputMode="numeric" autoComplete="off" {...register("stock_actual")} className="h-11 border-sky-200 bg-sky-50 text-sky-900 font-bold rounded-xl focus:ring-sky-500 shadow-inner text-lg" />
+                <Input type="number" inputMode="numeric" autoComplete="off" onFocus={(e) => e.target.select()} {...register("stock_actual")} className="h-11 border-sky-200 bg-sky-50 text-sky-900 font-bold rounded-xl focus:ring-sky-500 shadow-inner text-lg" />
               </div>
               <div className="space-y-1">
                 <Label className="font-black text-slate-700 ml-1 text-sm">Stock Alerta (Min)</Label>
-                <Input type="number" inputMode="numeric" autoComplete="off" {...register("stock_minimo")} className="h-11 border-slate-200 bg-white rounded-xl text-lg font-bold text-slate-600" />
+                <Input type="number" inputMode="numeric" autoComplete="off" onFocus={(e) => e.target.select()} {...register("stock_minimo")} className="h-11 border-slate-200 bg-white rounded-xl text-lg font-bold text-slate-600" />
               </div>
             </div>
 
@@ -354,6 +354,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                     inputMode="decimal"
                     step="0.01"
                     autoComplete="off"
+                    onFocus={(e) => e.target.select()}
                     {...register("precio_compra")} 
                     className="h-11 pl-8 border-slate-200 bg-white rounded-xl text-lg font-black focus:ring-emerald-500" 
                   />
@@ -389,6 +390,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                     type="number" 
                     inputMode="decimal"
                     autoComplete="off"
+                    onFocus={(e) => e.target.select()}
                     {...register("margen_ganancia")}
                     className="h-11 border-emerald-200 bg-white rounded-xl text-2xl font-black text-center pr-8 focus:ring-emerald-500 shadow-sm transition-all text-emerald-700"
                   />
@@ -410,6 +412,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                     type="number" 
                     inputMode="numeric"
                     autoComplete="off"
+                    onFocus={(e) => e.target.select()}
                     {...register("precio_venta")} 
                     className="h-11 pl-9 border-emerald-200 bg-white rounded-xl text-2xl font-black focus:ring-emerald-500 shadow-inner text-emerald-800"
                   />
@@ -443,6 +446,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                         type="number" 
                         inputMode="decimal"
                         autoComplete="off"
+                        onFocus={(e) => e.target.select()}
                         {...register("descuento")} 
                         placeholder="Ej: 10%" 
                         className="h-11 border-emerald-100 bg-white/50 rounded-xl font-bold text-lg text-emerald-700 focus:ring-emerald-500" 
@@ -468,6 +472,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                         type="number" 
                         inputMode="numeric"
                         autoComplete="off"
+                        onFocus={(e) => e.target.select()}
                         {...register("precio_minimo")} 
                         placeholder="Valor base..." 
                         className="h-11 pl-8 border-rose-100 bg-white/50 rounded-xl font-bold text-lg text-rose-800 focus:ring-rose-500" 
@@ -518,6 +523,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                             type="number" 
                             inputMode="numeric"
                             autoComplete="off"
+                            onFocus={(e) => e.target.select()}
                             {...register("factor_conversion")} 
                             placeholder="Ej: 60 (ml), 30 (capsulas)" 
                             className="h-11 border-amber-300 bg-white rounded-xl focus:ring-amber-500 font-black text-amber-900 text-lg" 
