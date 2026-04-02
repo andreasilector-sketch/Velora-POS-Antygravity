@@ -28,7 +28,8 @@ import {
   Loader2,
   ShieldCheck,
   AlertTriangle,
-  Boxes
+  Boxes,
+  Package
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
