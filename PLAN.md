@@ -15,7 +15,7 @@
 
 ## 📍 Current Trajectory
 
-- **Paso activo:** [Verified & Polished] 🪐 Auditoría Global de Tipos TS: Corregidos todos los manejadores onValueChange en Select (ProductForm, TenantForm, POS, CustomerForm) para soportar string | null.
+- **Paso activo:** [Verified & Polished] 🪐 Configuración de **Auto-GitHub Sync Pipeline** utilizando PAT heredado. Implementación de IA Naturista Info Panel en GlobalScanner. Auditoría de tipos TS completada.
 
 ## 👥 Squad Status
 
@@ -27,6 +27,7 @@
 | Senior Product Engineer (Antigravity) | [CASH] Arqueo & Liquidación | DONE |
 | Senior Product Engineer (Antigravity) | [CONF] Dashboard & Settings | DONE |
 | Senior Product Engineer (Antigravity) | [INV] Expiration Date implementation | DONE |
+| Senior Product Engineer (Antigravity) | [OPS] Auto-GitHub Sync Configuration | DONE |
 
 ## 📝 Audit Report (/audit)
 - **Visual Score:** 9.6/10 (Aesthetic Emerald / Slate)
