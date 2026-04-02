@@ -1274,21 +1274,28 @@ function AdvancedPOSPage() {
 
                 <div className="flex gap-4 pt-4">
                    <Button 
+                      variant="ghost"
                       onClick={() => setSelectedProductInfo(null)}
-                      className="flex-1 h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-lg shadow-sm"
+                      className="flex-1 h-14 rounded-2xl text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest"
                    >
-                      CERRAR
+                      Regresar
                    </Button>
                    <Button 
                       onClick={() => {
                          if (selectedProductInfo) {
                            addToCart(selectedProductInfo);
                            setSelectedProductInfo(null);
+                           // Desplazar al carrito en móviles
+                           if (typeof window !== 'undefined' && window.innerWidth < 1280) {
+                              const cartEl = document.querySelector('.xl\\:sticky');
+                              cartEl?.scrollIntoView({ behavior: 'smooth' });
+                           }
                          }
                       }}
-                      className="flex-2 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-lg shadow-emerald-100 px-8"
+                      className="flex-2 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-lg shadow-emerald-100 px-8 flex items-center gap-3"
                    >
-                      AÑADIR AL CARRITO
+                      <ShoppingCart className="w-5 h-5" />
+                      AGREGAR AL CARRITO DE COMPRAS
                    </Button>
                 </div>
              </div>
