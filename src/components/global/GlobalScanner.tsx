@@ -7,7 +7,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { BrainCircuit, Package, X, Scale, Edit, Search } from "lucide-react";
 
 export function GlobalScanner() {
@@ -23,6 +23,7 @@ export function GlobalScanner() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [barcodeNotFound, setBarcodeNotFound] = useState("");
+  const [showIA, setShowIA] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -83,6 +84,7 @@ export function GlobalScanner() {
     setIsLoading(true);
     setIsModalOpen(true);
     setBarcodeNotFound("");
+    setShowIA(false);
     
     try {
       const { data, error } = await supabase
@@ -117,8 +119,7 @@ export function GlobalScanner() {
   };
 
   const preguntarIA = () => {
-    // Abrir un prompt a IA
-    alert(`Consultando a Inteligencia Saludable: ¿Para qué sirve el producto: ${scannedProduct?.nombre}? \n\n(Este módulo se abrirá aquí)`);
+    setShowIA(prev => !prev);
   };
 
   return (
@@ -153,9 +154,16 @@ export function GlobalScanner() {
                 <div className="text-center space-y-2">
                    <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 font-bold uppercase tracking-widest text-[10px] border-emerald-100">{scannedProduct.sku || scannedProduct.codigo_barras || "S/N"}</Badge>
                    <h3 className="text-2xl font-black text-slate-800 tracking-tight leading-tight">{scannedProduct.nombre}</h3>
-                   <div className="flex justify-center items-center gap-2 mt-2">
-                     <span className="font-black text-slate-900 text-3xl">{formatCurrency(scannedProduct.precio_venta)}</span>
-                     {scannedProduct.es_fraccionado && <Scale className="w-5 h-5 text-amber-500" />}
+                   <div className="flex flex-col items-center gap-1 mt-2">
+                     <div className="flex justify-center items-center gap-2">
+                       <span className="font-black text-slate-900 text-3xl">{formatCurrency(scannedProduct.precio_venta)}</span>
+                       {scannedProduct.es_fraccionado && <Scale className="w-5 h-5 text-amber-500" />}
+                     </div>
+                     {scannedProduct.precio_minimo > 0 && (
+                       <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 uppercase tracking-widest">
+                         Piso: {formatCurrency(scannedProduct.precio_minimo)}
+                       </span>
+                     )}
                    </div>
                 </div>
 
@@ -181,12 +189,51 @@ export function GlobalScanner() {
                   </Button>
                   <Button 
                     onClick={preguntarIA} 
-                    className="h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-emerald-200 gap-2 relative overflow-hidden group"
+                    className={cn(
+                      "h-14 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg gap-2 relative overflow-hidden group transition-all",
+                      showIA ? "bg-slate-800 hover:bg-slate-900 shadow-slate-200" : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200"
+                    )}
                   >
                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                    <BrainCircuit className="w-4 h-4" /> IA Naturista
+                    <BrainCircuit className="w-4 h-4" /> {showIA ? "Cerrar IA" : "IA Naturista"}
                   </Button>
                 </div>
+                
+                {showIA && (
+                  <div className="mt-4 p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl animate-in slide-in-from-top-4 fade-in duration-300">
+                    <div className="flex items-center gap-2 mb-3">
+                      <BrainCircuit className="w-5 h-5 text-emerald-600" />
+                      <h4 className="font-black text-slate-800 text-sm uppercase tracking-widest">Inteligencia Saludable</h4>
+                    </div>
+                    
+                    <div className="space-y-4 text-sm mt-4">
+                      {scannedProduct.sintomas_alivia && (
+                        <div>
+                          <span className="font-bold text-emerald-700 text-[10px] uppercase tracking-widest block mb-0.5 opacity-80">Para qué sirve (Afecciones)</span>
+                          <p className="text-slate-700 font-medium leading-relaxed">{scannedProduct.sintomas_alivia}</p>
+                        </div>
+                      )}
+                      
+                      {scannedProduct.beneficios && (
+                        <div>
+                           <span className="font-bold text-emerald-700 text-[10px] uppercase tracking-widest block mb-0.5 opacity-80">Beneficios reportados</span>
+                           <p className="text-slate-700 font-medium leading-relaxed">{scannedProduct.beneficios}</p>
+                        </div>
+                      )}
+                      
+                      {scannedProduct.ingredientes && (
+                        <div>
+                           <span className="font-bold text-emerald-700 text-[10px] uppercase tracking-widest block mb-0.5 opacity-80">Componentes / Ingredientes</span>
+                           <p className="text-slate-700 font-medium leading-relaxed max-h-24 overflow-y-auto custom-scrollbar">{scannedProduct.ingredientes}</p>
+                        </div>
+                      )}
+                      
+                      {!scannedProduct.sintomas_alivia && !scannedProduct.beneficios && !scannedProduct.ingredientes && (
+                        <p className="text-slate-400 italic font-medium text-center py-4 text-xs">No hay información naturista registrada para este producto específico.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-8 space-y-4">
