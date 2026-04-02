@@ -211,9 +211,9 @@ export default function DashboardPage() {
             <KPICard title="Transacciones Hoy" amount={stats.prodVendidos.toString()} icon={<Trophy />} trend="Ventas completadas" positive={true} color="rose" />
           </div>
 
-          <div className="grid grid-cols-1 lg:col-span-3 gap-8">
-            <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-8 shadow-sm h-[450px] flex flex-col relative overflow-hidden group">
-              <div className="flex items-center justify-between mb-8">
+          <div className="grid grid-cols-1 lg:col-span-3 gap-6">
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm h-[320px] flex flex-col relative overflow-hidden group">
+              <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
                   <AlertTriangle className="w-6 h-6 text-rose-500" /> Alertas de Inventario
                 </h3>
@@ -225,14 +225,14 @@ export default function DashboardPage() {
                      <p className="text-sm text-slate-500 font-bold italic text-center">Stock en niveles óptimos</p>
                   </div>
                 ) : alertItems.map((item: any) => (
-                  <div key={item.id} className="flex justify-between items-center p-5 bg-rose-50/50 border border-rose-100 rounded-2xl hover:bg-rose-50 transition-colors">
+                  <div key={item.id} className="flex justify-between items-center p-3.5 bg-rose-50/50 border border-rose-100 rounded-xl hover:bg-rose-50 transition-colors">
                     <div>
-                      <p className="font-bold text-slate-800 text-lg">{item.nombre}</p>
-                      <p className="text-xs text-slate-500 font-bold mt-1">Mínimo ideal: <span className="text-slate-700">{item.stock_minimo}</span></p>
+                      <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                      <p className="text-[10px] text-slate-500 font-bold mt-0.5">Mínimo ideal: <span className="text-slate-700">{item.stock_minimo}</span></p>
                     </div>
-                    <div className="text-right flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-rose-100/50">
-                      <p className="text-3xl font-black text-rose-600">{item.stock_actual}</p>
-                      <p className="text-xs font-black uppercase text-rose-400 tracking-wider">Und.</p>
+                    <div className="text-right flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-rose-100/50">
+                      <p className="text-xl font-black text-rose-600">{item.stock_actual}</p>
+                      <p className="text-[9px] font-black uppercase text-rose-400 tracking-wider">Und.</p>
                     </div>
                   </div>
                 ))}
@@ -246,15 +246,15 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div className="space-y-6">
-              <Card className="border-slate-200 shadow-sm rounded-3xl bg-white p-8 group">
-                <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
+            <div className="space-y-4">
+              <Card className="border-slate-200 shadow-sm rounded-2xl bg-white p-5 group flex flex-col h-[320px]">
+                <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
                   <History className="w-5 h-5 text-emerald-600" /> Historial Reciente
                   <span className="ml-auto flex items-center gap-1.5 text-[10px] font-black text-emerald-500 uppercase tracking-widest">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> En vivo
                   </span>
                 </h3>
-                <div className="space-y-5">
+                <div className="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                   {recentVentas.length === 0 ? (
                     <p className="text-sm text-slate-400 font-bold italic text-center py-6 opacity-50">Sin ventas registradas hoy</p>
                   ) : recentVentas.map((v: any) => (
@@ -268,39 +268,39 @@ export default function DashboardPage() {
                     />
                   ))}
                 </div>
-                <Link href="/reports/sales">
-                  <Button variant="ghost" className="w-full mt-8 font-black text-xs text-emerald-600 tracking-widest uppercase hover:bg-emerald-50">
+                <Link href="/reports/sales" className="mt-4 block shrink-0">
+                  <Button variant="ghost" className="w-full font-black text-[10px] text-emerald-600 tracking-widest uppercase hover:bg-emerald-50 h-8">
                     Ver todos los eventos →
                   </Button>
                 </Link>
               </Card>
 
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Link href="/pos" className="block w-full">
-                  <Button className="w-full h-20 bg-emerald-600 hover:bg-emerald-500 hover:-translate-y-1 transition-all rounded-[2rem] shadow-xl shadow-emerald-200 flex items-center justify-between px-8">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white/20 rounded-2xl">
-                        <ShoppingBag className="w-6 h-6 text-white" />
+                  <Button className="w-full h-16 bg-emerald-600 hover:bg-emerald-500 hover:-translate-y-0.5 transition-all rounded-xl shadow-lg shadow-emerald-200 flex items-center justify-between px-5">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white/20 rounded-lg">
+                        <ShoppingBag className="w-5 h-5 text-white" />
                       </div>
                       <div className="text-left">
-                        <p className="text-lg font-black text-white leading-none tracking-tighter">PUNTO DE VENTA</p>
-                        <p className="text-[10px] font-bold text-emerald-100 uppercase mt-1 tracking-widest">Facturar Ahora →</p>
+                        <p className="text-sm font-black text-white leading-none tracking-tighter">PUNTO DE VENTA</p>
+                        <p className="text-[9px] font-bold text-emerald-100 uppercase mt-0.5 tracking-widest">Facturar Ahora</p>
                       </div>
                     </div>
                   </Button>
                 </Link>
 
-                <Button className="w-full h-24 bg-slate-900 hover:bg-slate-800 hover:-translate-y-1 transition-all rounded-[2rem] shadow-xl shadow-slate-200 flex items-center justify-between px-8 relative overflow-hidden group">
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="p-3 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-900/40 group-hover:rotate-12 transition-transform">
-                      <Sparkles className="w-6 h-6" />
+                <Button className="w-full h-16 bg-slate-900 hover:bg-slate-800 hover:-translate-y-0.5 transition-all rounded-xl shadow-lg shadow-slate-200 flex items-center justify-between px-5 relative overflow-hidden group">
+                  <div className="relative z-10 flex items-center gap-3">
+                    <div className="p-2 bg-emerald-600 text-white rounded-lg shadow-sm shadow-emerald-900/40 group-hover:rotate-12 transition-transform">
+                      <Sparkles className="w-5 h-5" />
                     </div>
                     <div className="text-left">
-                      <p className="text-lg font-black text-white leading-none tracking-tighter uppercase">Asistente Galáctico</p>
-                      <p className="text-[10px] font-bold text-emerald-400 uppercase mt-1 tracking-[0.2em]">Sugerencias de Combos IA</p>
+                      <p className="text-sm font-black text-white leading-none tracking-tighter uppercase">Asistente Galáctico</p>
+                      <p className="text-[9px] font-bold text-emerald-400 uppercase mt-0.5 tracking-[0.15em]">Combos IA</p>
                     </div>
                   </div>
-                  <BrainCircuit className="absolute -right-4 -bottom-4 w-24 h-24 text-white/5 rotate-12 group-hover:text-white/10 transition-all" />
+                  <BrainCircuit className="absolute -right-2 -bottom-2 w-16 h-16 text-white/5 rotate-12 group-hover:text-white/10 transition-all" />
                   <div className="relative z-10 bg-white/10 px-3 py-1.5 rounded-xl backdrop-blur-md opacity-50 group-hover:opacity-100 transition-opacity">
                     <Plus className="w-4 h-4 text-white" />
                   </div>
@@ -322,22 +322,22 @@ function KPICard({ title, amount, icon, trend, positive, color }: any) {
     rose: "bg-rose-500 text-white shadow-rose-100",
   };
   return (
-    <Card className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-xl transition-all hover:-translate-y-1 group">
+    <Card className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all hover:-translate-y-0.5 group">
       <div className="flex justify-between items-start">
-        <div className={cn("p-4 rounded-2xl shadow-lg transition-transform group-hover:scale-110", colors[color])}>
-          {React.cloneElement(icon, { size: 24, strokeWidth: 3 })}
+        <div className={cn("p-2.5 rounded-xl shadow-md transition-transform group-hover:scale-105", colors[color])}>
+          {React.cloneElement(icon, { size: 18, strokeWidth: 3 })}
         </div>
         <div className={cn(
-          "flex items-center px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter",
+          "flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter",
           positive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
         )}>
-          {positive ? <ArrowUpRight className="w-3 h-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 h-3 mr-1" />}
+          {positive ? <ArrowUpRight className="w-3 h-3 h-2 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 h-2 mr-0.5" />}
           {trend}
         </div>
       </div>
-      <div className="mt-8">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{title}</p>
-        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">{amount}</h3>
+      <div className="mt-4">
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em] mb-0.5">{title}</p>
+        <h3 className="text-xl font-black text-slate-900 tracking-tighter">{amount}</h3>
       </div>
     </Card>
   );

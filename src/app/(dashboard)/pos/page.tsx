@@ -247,8 +247,13 @@ function AdvancedPOSPage() {
   const applyPromotions = (currentCart: CartItem[]) => {
     return currentCart.map(item => {
       // 1. Base product discount (from its definition)
-      const baseDiscountPercent = Math.max(Number(item.descuento) || 0, item.manualDiscountPercent || 0);
-      let calculatedBaseDiscount = (item.precio_venta * item.qty) * (baseDiscountPercent / 100);
+      let calculatedBaseDiscount = 0;
+      if (item.isFloorPriceApplied) {
+        calculatedBaseDiscount = (item.precio_venta * item.qty) - (item.precio_minimo * item.qty);
+      } else {
+        const baseDiscountPercent = Math.max(Number(item.descuento) || 0, item.manualDiscountPercent || 0);
+        calculatedBaseDiscount = (item.precio_venta * item.qty) * (baseDiscountPercent / 100);
+      }
 
       let bestPromoDiscount = 0;
       
@@ -275,7 +280,7 @@ function AdvancedPOSPage() {
   const updateDiscount = (id: string, value: number) => {
     setCart(prev => {
       const newCart = prev.map(item => 
-        item.id === id ? { ...item, manualDiscountPercent: value } : item
+        item.id === id ? { ...item, manualDiscountPercent: value, isFloorPriceApplied: false } : item
       );
       return applyPromotions(newCart);
     });
@@ -285,11 +290,8 @@ function AdvancedPOSPage() {
     setCart(prev => {
       const newCart = prev.map(item => {
         if (item.id === id && item.precio_minimo > 0) {
-          // Calculate what % discount is needed to reach the floor price
-          const targetTotal = item.precio_minimo * item.qty;
-          const currentTotal = item.precio_venta * item.qty;
-          const discountNeeded = ((currentTotal - targetTotal) / currentTotal) * 100;
-          return { ...item, manualDiscountPercent: Number(discountNeeded.toFixed(2)) };
+          // Apply EXACT floor price explicitly
+          return { ...item, isFloorPriceApplied: true, manualDiscountPercent: 0 };
         }
         return item;
       });
@@ -570,28 +572,25 @@ function AdvancedPOSPage() {
                              <Button variant="ghost" size="icon" className="h-8 w-8 xl:h-10 xl:w-10 rounded-lg bg-white shadow-sm border border-slate-100" onClick={() => updateQty(item.id, 1)}><Plus className="w-3 h-3 xl:w-4 xl:h-4" /></Button>
                           </div>
 
-                          <div className="flex flex-col items-end gap-1">
-                              <div className="flex flex-col items-end gap-1">
+                          <div className="flex flex-col items-end gap-1.5 justify-center mt-1">
+                              <div className="flex items-center gap-1.5 flex-wrap justify-end w-full">
                                  {item.precio_minimo > 0 && (
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">
-                                          P. Mín: <span>{formatCurrency(item.precio_minimo)}</span>
-                                       </span>
-                                       <button 
-                                          onClick={() => applyFloorPrice(item.id)}
-                                          className="px-1.5 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded border border-rose-100 hover:bg-rose-600 hover:text-white transition-colors uppercase"
-                                       >
-                                          <span>Piso</span>
-                                       </button>
-                                    </div>
+                                    <button 
+                                       onClick={() => applyFloorPrice(item.id)}
+                                       className={cn("px-1.5 py-0.5 text-[9px] font-black rounded border transition-colors uppercase whitespace-nowrap", item.isFloorPriceApplied ? "bg-rose-600 text-white border-rose-600" : "bg-rose-50 text-rose-500 border-rose-100 hover:bg-rose-600 hover:text-white")}
+                                    >
+                                       MÍN: {formatCurrency(item.precio_minimo)}
+                                    </button>
                                  )}
-                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black text-rose-400 uppercase tracking-tighter">DTO %:</span>
+                                 <div className="flex items-center gap-1">
+                                    <span className="text-[9px] font-black text-rose-400 uppercase tracking-tighter">DTO%:</span>
                                     <input
-                                       type="number"
-                                       value={item.manualDiscountPercent === undefined ? (Number(item.descuento || 0)) : item.manualDiscountPercent}
+                                       type="text"
+                                       inputMode="decimal"
+                                       value={item.isFloorPriceApplied ? "" : (item.manualDiscountPercent === undefined ? (Number(item.descuento || 0)) : item.manualDiscountPercent)}
+                                       placeholder={item.isFloorPriceApplied ? "PISO" : "0"}
                                        onChange={(e) => updateDiscount(item.id, Number(e.target.value))}
-                                       className="w-12 h-6 rounded border border-slate-200 text-xs font-bold text-center focus:ring-rose-500 focus:border-rose-500 bg-white p-0"
+                                       className="w-10 h-5 rounded border border-slate-200 text-xs font-bold text-center focus:ring-rose-500 focus:border-rose-500 bg-white p-0 placeholder:text-[9px] placeholder:text-rose-400 placeholder:font-black"
                                     />
                                  </div>
                               </div>

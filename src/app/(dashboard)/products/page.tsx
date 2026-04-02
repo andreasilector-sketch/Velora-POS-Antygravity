@@ -279,7 +279,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 h-full flex flex-col overflow-hidden font-sans">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 font-sans flex flex-col min-h-[calc(100vh-8rem)]">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-[95vw] md:max-w-[90vw] lg:max-w-[85vw] w-full max-h-[95vh] overflow-y-auto rounded-[3rem] border-none shadow-2xl p-0 bg-white">
           <div className="p-6">
@@ -307,7 +307,7 @@ export default function ProductsPage() {
       </Dialog>
 
       {/* Encabezado */}
-      <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6 flex-shrink-0 bg-slate-50/50">
+      <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 flex-shrink-0 bg-slate-50/50">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-100">
             <PackageSearch className="w-8 h-8" />
@@ -342,15 +342,15 @@ export default function ProductsPage() {
               setSelectedProduct(null);
               setIsDialogOpen(true);
             }}
-            className="h-11 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-100 transition-all hover:-translate-y-0.5 rounded-xl ml-1"
+            className="h-11 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-100 transition-all hover:-translate-y-0.5 rounded-xl ml-1"
           >
-            <Plus className="w-5 h-5 mr-2" /> Nuevo Producto
+            <Plus className="w-5 h-5 mr-1" /> Nuevo Producto
           </Button>
         </div>
       </div>
 
       {/* Tarjetas de Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 border-b border-slate-100">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 md:px-6 border-b border-slate-100">
         <CardStat 
           label="Productos Totales" 
           value={stats.total.toString()} 
@@ -372,18 +372,18 @@ export default function ProductsPage() {
       </div>
 
       {/* Barra de Búsqueda */}
-        <div className="flex-1 flex flex-col md:flex-row gap-4 items-center">
-          <div className="relative flex-1">
-            <Search className="w-5 h-5 absolute left-4 top-3 text-slate-400" />
+        <div className="flex flex-col md:flex-row gap-3 items-center p-4 md:px-6 border-b border-slate-100 flex-shrink-0">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 absolute left-3 top-3.5 text-slate-400" />
             <Input 
-              className="pl-12 h-11 border-slate-200 bg-slate-50 focus:bg-white focus:ring-emerald-500 rounded-xl transition-all" 
+              className="pl-9 h-11 border-slate-200 bg-slate-50 focus:bg-white focus:ring-emerald-500 rounded-xl transition-all w-full" 
               placeholder="Buscar por nombre, SKU o código de barras..." 
               value={searchTerm}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             />
           </div>
           <Select value={selectedCategory} onValueChange={(v: string | null) => setSelectedCategory(v || "all")}>
-            <SelectTrigger className="w-full md:w-64 h-11 border-slate-200 bg-white rounded-xl shadow-sm font-bold text-slate-600">
+            <SelectTrigger className="w-full md:w-56 h-11 border-slate-200 bg-white rounded-xl shadow-sm font-bold text-slate-600">
                <Filter className="w-4 h-4 mr-2" />
                <SelectValue placeholder="Todas las Categorías" />
             </SelectTrigger>
@@ -396,7 +396,7 @@ export default function ProductsPage() {
           </Select>
         </div>
 
-      <div className="flex-1 overflow-auto p-0">
+      <div className="flex-1 overflow-auto bg-white rounded-b-2xl">
         {loading ? (
           <div className="p-20 text-center text-slate-400 font-medium whitespace-pre">Cargando catálogo maestro...</div>
         ) : (
@@ -415,19 +415,19 @@ export default function ProductsPage() {
             <TableBody>
               {filteredProducts.map((prod: Product) => (
                 <TableRow key={prod.id} className="hover:bg-emerald-50/30 transition-colors border-b border-slate-100 group">
-                  <TableCell className="pl-8 py-5">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 w-fit px-2 py-0.5 rounded-md mb-1 tracking-wider">{prod.sku || "SIN SKU"}</span>
-                      <span className="text-[9px] text-slate-400 font-mono italic">{prod.id.substring(0,8)}</span>
+                  <TableCell className="pl-6 py-2 align-top">
+                    <div className="flex flex-col mt-1.5">
+                      <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 w-fit px-1.5 py-0.5 rounded mt-0.5 tracking-wider">{prod.sku || "N/A"}</span>
+                      <span className="text-[9px] text-slate-400 font-mono italic inline-block mt-0.5">{prod.id.substring(0,8)}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-bold text-slate-800 text-base group-hover:text-emerald-700 transition-colors">{prod.nombre}</p>
-                      <p className="text-xs text-slate-400">{(prod as any).categorias?.nombre || "General"}</p>
+                  <TableCell className="py-2">
+                    <div className="max-w-[200px] xl:max-w-[300px]">
+                      <p className="font-bold text-slate-800 text-sm group-hover:text-emerald-700 transition-colors truncate">{prod.nombre}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{(prod as any).categorias?.nombre || "General"}</p>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-2">
                      <div className="flex gap-2">
                         {prod.es_fraccionado && (
                           <div title="Producto Fraccionado" className="p-1.5 bg-amber-50 text-amber-600 rounded-lg border border-amber-100">
@@ -513,12 +513,12 @@ function CardStat({ label, value, icon, color }: any) {
     teal: "bg-teal-50 text-teal-600 shadow-teal-50 border-teal-100",
   };
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:shadow-xl transition-all border-b-4 border-b-transparent hover:border-b-emerald-500 group relative overflow-hidden">
+    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between hover:shadow-md transition-all border-b-4 border-b-transparent hover:border-b-emerald-500 group relative overflow-hidden">
       <div className="relative z-10">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</p>
-        <p className="text-3xl font-black text-slate-900 mt-2 tracking-tighter">{value}</p>
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">{label}</p>
+        <p className="text-2xl font-black text-slate-900 mt-1 tracking-tighter">{value}</p>
       </div>
-      <div className={cn("p-4 rounded-2xl shadow-inner transition-all group-hover:rotate-12 group-hover:scale-110 border", colors[color])}>
+      <div className={cn("p-3 rounded-xl shadow-inner transition-all group-hover:rotate-12 group-hover:scale-110 border", colors[color])}>
         {icon}
       </div>
       <div className={cn("absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-5 blur-2xl", colors[color].split(' ')[0])} />
