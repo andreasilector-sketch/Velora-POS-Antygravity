@@ -551,7 +551,7 @@ function AdvancedPOSPage() {
             <Button variant="ghost" size="default" className="text-white bg-rose-500 font-bold hover:bg-rose-600 px-4 rounded-xl uppercase tracking-widest text-xs" onClick={() => setCart([])}>Vaciar</Button>
           </div>
 
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
             <div className="p-3 space-y-2" key={cart.length === 0 ? "empty" : "items"}>
                {cart.length > 0 ? (
                    cart.map((item) => (
@@ -615,7 +615,7 @@ function AdvancedPOSPage() {
                   </div>
                )}
             </div>
-          </ScrollArea>
+          </div>
 
           <div className="p-3 bg-slate-50/50 border-t border-slate-100 space-y-2 shrink-0">
             <div className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:border-emerald-200 transition-all cursor-pointer shadow-sm" onClick={() => setIsClientSearchOpen(true)}>
