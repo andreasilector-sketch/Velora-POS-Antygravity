@@ -247,7 +247,6 @@ export function GlobalScanner() {
               </div>
             )}
           </div>
-          </div>
       </DialogContent>
     </Dialog>
   );
