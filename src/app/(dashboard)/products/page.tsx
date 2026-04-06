@@ -17,7 +17,8 @@ import {
   Trash2,
   Scale,
   BrainCircuit,
-  Calendar
+  Calendar,
+  Printer
 } from "lucide-react";
 import {
   Dialog,
@@ -31,6 +32,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { formatCurrency, normalizeText } from "@/lib/utils";
 import { Database } from "@/lib/database.types";
 import { ProductForm } from "./components/ProductForm";
+import { PrintStickerModal } from "./components/PrintStickerModal";
 import { cn } from "@/lib/utils";
 import * as xlsx from 'xlsx';
 
@@ -54,6 +56,7 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState(query || "");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [allCategories, setAllCategories] = useState<{id: string, nombre: string}[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -306,6 +309,12 @@ export default function ProductsPage() {
         </DialogContent>
       </Dialog>
 
+      <PrintStickerModal 
+        product={selectedProduct} 
+        isOpen={isPrintModalOpen} 
+        onClose={() => setIsPrintModalOpen(false)} 
+      />
+
       {/* Encabezado */}
       <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 flex-shrink-0 bg-slate-50/50">
         <div className="flex items-center gap-4">
@@ -468,6 +477,15 @@ export default function ProductsPage() {
                   </TableCell>
                   <TableCell className="text-center pr-8">
                     <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100">
+                      <Button 
+                        onClick={() => {
+                          setSelectedProduct(prod);
+                          setIsPrintModalOpen(true);
+                        }}
+                        variant="ghost" size="icon" title="Imprimir Stickers" className="h-10 w-10 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl"
+                      >
+                        <Printer className="w-4 h-4" />
+                      </Button>
                       <Button 
                         onClick={() => {
                           setSelectedProduct(prod);
