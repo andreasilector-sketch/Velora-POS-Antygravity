@@ -14,7 +14,7 @@ export function PrintStickerModal({ product, isOpen, onClose }: any) {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    contentRef: printRef,
     documentTitle: `Stickers-${product?.nombre}`,
     onAfterPrint: () => {
       // Optional: auto-close after print
