@@ -385,6 +385,21 @@ function AdvancedPOSPage() {
             .eq("id", selectedClient.id);
         }
 
+        let totalSaldoAFavor = 0;
+        for (const pr of paymentRecords as any[]) {
+          if (pr.metodo_pago === "saldo_a_favor") {
+            totalSaldoAFavor += pr.monto;
+          }
+        }
+
+        if (totalSaldoAFavor > 0) {
+          await (supabase.from("clientes" as any) as any)
+            .update({
+              saldo_a_favor: Math.max(0, (selectedClient.saldo_a_favor || 0) - totalSaldoAFavor)
+            } as any)
+            .eq("id", selectedClient.id);
+        }
+
         // --- Lógica de Puntos (1 punto por cada $1.000) ---
         const earnedPoints = Math.floor(total / 1000);
         if (earnedPoints > 0) {
@@ -805,16 +820,32 @@ function AdvancedPOSPage() {
                               <Smartphone className="w-5 h-5" /> Digital
                            </button>
                            <button 
-                              disabled={!selectedClient}
-                              onClick={() => setSelectedMethod("credito_cliente")}
-                              className={cn(
-                                 "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all w-full text-left font-black text-sm uppercase tracking-tight shadow-sm",
-                                 selectedMethod === "credito_cliente" ? "bg-emerald-600 border-emerald-600 text-white shadow-emerald-100" : "bg-white border-slate-100 text-slate-500 hover:border-slate-200",
-                                 !selectedClient && "opacity-30 cursor-not-allowed border-dashed"
-                              )}
-                           >
-                              <Wallet className="w-5 h-5" /> Fiado/Crédito
-                           </button>
+                               disabled={!selectedClient}
+                               onClick={() => setSelectedMethod("credito_cliente")}
+                               className={cn(
+                                  "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all w-full text-left font-black text-sm uppercase tracking-tight shadow-sm",
+                                  selectedMethod === "credito_cliente" ? "bg-emerald-600 border-emerald-600 text-white shadow-emerald-100" : "bg-white border-slate-100 text-slate-500 hover:border-slate-200",
+                                  !selectedClient && "opacity-30 cursor-not-allowed border-dashed"
+                               )}
+                            >
+                               <Wallet className="w-5 h-5" /> Fiado/Crédito
+                            </button>
+                            <button 
+                               disabled={!selectedClient || (selectedClient.saldo_a_favor || 0) <= 0}
+                               onClick={() => setSelectedMethod("saldo_a_favor")}
+                               className={cn(
+                                  "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all w-full text-left font-black text-sm uppercase tracking-tight shadow-sm relative overflow-hidden",
+                                  selectedMethod === "saldo_a_favor" ? "bg-sky-600 border-sky-600 text-white shadow-sky-100" : "bg-white border-slate-100 text-slate-500 hover:border-slate-200",
+                                  (!selectedClient || (selectedClient.saldo_a_favor || 0) <= 0) && "opacity-30 cursor-not-allowed border-dashed"
+                               )}
+                            >
+                               <DollarSign className="w-5 h-5 text-sky-500 group-hover:text-white" /> Saldo a Favor
+                               {selectedClient && selectedClient.saldo_a_favor > 0 && (
+                                  <span className="absolute -right-2 top-0 bg-sky-200 text-sky-800 text-[8px] px-2 py-0.5 rounded-bl-lg font-black">
+                                     {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(selectedClient.saldo_a_favor)}
+                                  </span>
+                               )}
+                            </button>
                         </div>
                      </div>
                   </div>
@@ -1068,6 +1099,7 @@ function AdvancedPOSPage() {
                                                    {p.method === 'tarjeta' && <CreditCard className="w-5 h-5" />}
                                                    {p.method === 'transferencia' && <Smartphone className="w-5 h-5" />}
                                                    {p.method === 'credito_cliente' && <Wallet className="w-5 h-5" />}
+                                                   {p.method === 'saldo_a_favor' && <DollarSign className="w-5 h-5" />}
                                                 </div>
                                                 <div>
                                                    <p className="font-bold text-slate-800 text-xs uppercase"><span>{p.method}</span></p>

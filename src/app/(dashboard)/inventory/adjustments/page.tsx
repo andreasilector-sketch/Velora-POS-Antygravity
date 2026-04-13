@@ -32,8 +32,10 @@ type Movimiento = {
 const TIPO_CONFIG = {
   ingreso:    { label: "Ingreso de Compra", icon: ArrowUpCircle,   color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200" },
   ajuste:     { label: "Ajuste Manual",     icon: RefreshCw,       color: "text-amber-600",   bg: "bg-amber-50 border-amber-200" },
-  devolucion: { label: "Devolución",        icon: ArrowUpCircle,   color: "text-sky-600",     bg: "bg-sky-50 border-sky-200" },
-  venta:      { label: "Venta",             icon: ArrowDownCircle, color: "text-rose-600",    bg: "bg-rose-50 border-rose-200" },
+  devolucion:        { label: "Devolución",        icon: ArrowUpCircle,   color: "text-sky-600",     bg: "bg-sky-50 border-sky-200" },
+  venta:             { label: "Venta",             icon: ArrowDownCircle, color: "text-rose-600",    bg: "bg-rose-50 border-rose-200" },
+  prestamo_entregado: { label: "Préstamo Entregado", icon: TrendingDown,    color: "text-orange-600",  bg: "bg-orange-50 border-orange-200" },
+  prestamo_recibido:  { label: "Préstamo Recibido",  icon: TrendingUp,      color: "text-indigo-600",  bg: "bg-indigo-50 border-indigo-200" },
 };
 
 const formatCurrency = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(v);
@@ -69,7 +71,15 @@ export default function AjustesInventarioPage() {
     
     const cantidad = parseInt(form.cantidad);
     const tipoFinal = form.tipo;
-    const cantidadDelta = ["ingreso", "devolucion"].includes(tipoFinal) ? cantidad : -cantidad;
+    const isLoan = tipoFinal.startsWith("prestamo_");
+    
+    if (isLoan && !form.motivo) {
+      setError("El campo 'Tercero / Notas' es obligatorio para préstamos.");
+      setSaving(false);
+      return;
+    }
+
+    const cantidadDelta = ["ingreso", "devolucion", "prestamo_recibido"].includes(tipoFinal) ? cantidad : -cantidad;
     
     const sucursalRes = await supabase.from("sucursales").select("id").eq("tenant_id", tenant.id).limit(1).single();
     const sucursalId = sucursalRes.data?.id;
@@ -90,9 +100,9 @@ export default function AjustesInventarioPage() {
     // Update stock on producto
     const prod = productos.find(p => p.id === form.producto_id);
     if (prod) {
-      const newStock = ["ingreso", "devolucion"].includes(tipoFinal)
+      const newStock = ["ingreso", "devolucion", "prestamo_recibido"].includes(tipoFinal)
         ? prod.stock_actual + cantidad
-        : prod.stock_actual + cantidadDelta;
+        : prod.stock_actual - cantidad;
       await supabase.from("productos").update({ stock_actual: Math.max(0, newStock) }).eq("id", form.producto_id);
     }
 
@@ -180,7 +190,7 @@ export default function AjustesInventarioPage() {
                 {filteredMov.map(mov => {
                   const cfg = TIPO_CONFIG[mov.tipo as keyof typeof TIPO_CONFIG] || TIPO_CONFIG.ajuste;
                   const Icon = cfg.icon;
-                  const isPositive = ["ingreso", "devolucion"].includes(mov.tipo);
+                  const isPositive = ["ingreso", "devolucion", "prestamo_recibido"].includes(mov.tipo);
                   return (
                     <TableRow key={mov.id} className="border-b border-slate-50 hover:bg-slate-50/50">
                       <TableCell className="pl-6 py-4">
@@ -224,16 +234,16 @@ export default function AjustesInventarioPage() {
             
             <div className="space-y-1">
               <Label className="font-black text-slate-700 text-sm">Tipo de Movimiento</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["ingreso", "ajuste", "devolucion"] as const).map(tipo => {
-                  const cfg = TIPO_CONFIG[tipo];
+              <div className="grid grid-cols-5 gap-2">
+                {([...Object.keys(TIPO_CONFIG)].filter(t => t !== "venta")).map(tipo => {
+                  const cfg = TIPO_CONFIG[tipo as keyof typeof TIPO_CONFIG];
                   const Icon = cfg.icon;
                   return (
                     <button key={tipo} onClick={() => setForm(f => ({ ...f, tipo }))}
-                      className={cn("p-3 rounded-xl border-2 text-xs font-black flex flex-col items-center gap-1 transition-all",
+                      className={cn("p-2 rounded-xl border-2 text-[8px] font-black flex flex-col items-center gap-1 transition-all h-16 justify-center text-center leading-tight",
                         form.tipo === tipo ? `${cfg.bg} ${cfg.color}` : "border-slate-100 text-slate-400 hover:border-slate-200"
                       )}>
-                      <Icon className="w-5 h-5" /> {cfg.label.split(" ")[0]}
+                      <Icon className="w-5 h-5 mb-1" /> {cfg.label.replace("Préstamo", "Pr.").replace("de Compra", "")}
                     </button>
                   );
                 })}
@@ -272,8 +282,15 @@ export default function AjustesInventarioPage() {
             </div>
 
             <div className="space-y-1">
-              <Label className="font-black text-slate-700 text-sm">Motivo / Referencia</Label>
-              <Input value={form.motivo} onChange={e => setForm(f => ({ ...f, motivo: e.target.value }))} placeholder="Ej: Compra factura #001, Conteo físico..." className="h-11 border-slate-200 rounded-xl" />
+              <Label className="font-black text-slate-700 text-sm">
+                {form.tipo.startsWith("prestamo_") ? "Tercero / Notas (Obligatorio)" : "Motivo / Referencia"}
+              </Label>
+              <Input 
+                value={form.motivo} 
+                onChange={e => setForm(f => ({ ...f, motivo: e.target.value }))} 
+                placeholder={form.tipo.startsWith("prestamo_") ? "Nombre de la persona o entidad..." : "Ej: Compra factura #001, Conteo físico..."} 
+                className={cn("h-11 border-slate-200 rounded-xl", form.tipo.startsWith("prestamo_") && !form.motivo && "border-orange-300 bg-orange-50/20")}
+              />
             </div>
 
             <div className="flex gap-3 pt-2">

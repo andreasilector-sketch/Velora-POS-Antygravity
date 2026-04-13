@@ -85,6 +85,78 @@ export default function SalesHistoryPage() {
 
   const formatCurrency = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(v);
 
+  const handleVentaReturn = async (method: 'efectivo' | 'saldo_a_favor') => {
+    if (!selectedItemReturn || !selectedVenta) return;
+    
+    setIsReturning(true);
+    try {
+      // 1. Reintregar al stock
+      const { data: prodData } = await (supabase.from("productos") as any)
+        .select("stock_actual")
+        .eq("id", selectedItemReturn.producto_id)
+        .single();
+      
+      const newStock = (prodData?.stock_actual || 0) + 1;
+      
+      await (supabase.from("productos") as any)
+        .update({ stock_actual: newStock })
+        .eq("id", selectedItemReturn.producto_id);
+
+      // 2. Registrar movimiento de inventario
+      await (supabase.from("inventario_movimientos") as any)
+        .insert({
+          producto_id: selectedItemReturn.producto_id,
+          tipo: 'devolucion',
+          cantidad: 1,
+          motivo: `Devolución de venta REF: ${selectedVenta.id.slice(0,8)}`,
+          sucursal_id: selectedVenta.sucursal_id,
+          usuario_id: user?.id,
+          tenant_id: selectedVenta.tenant_id
+        });
+
+      // 3. Manejar dinero
+      if (method === 'efectivo') {
+        const { data: sesion } = await (supabase.from("caja_sesiones") as any)
+          .select("id")
+          .eq("estado", "abierta")
+          .maybeSingle();
+
+        if (sesion) {
+          await (supabase.from("caja_movimientos") as any)
+            .insert({
+              sesion_id: sesion.id,
+              tipo: 'retiro',
+              monto: selectedItemReturn.precio_unitario,
+              concepto: `Devolución Efectivo REF: ${selectedVenta.id.slice(0,8)}`,
+              metodo_pago: 'efectivo',
+              usuario_id: user?.id,
+              tenant_id: selectedVenta.tenant_id
+            });
+        }
+      } else if (method === 'saldo_a_favor' && selectedVenta.cliente_id) {
+        const { data: clientData } = await (supabase.from("clientes") as any)
+          .select("saldo_a_favor")
+          .eq("id", selectedVenta.cliente_id)
+          .single();
+        
+        await (supabase.from("clientes") as any)
+          .update({
+            saldo_a_favor: (clientData?.saldo_a_favor || 0) + selectedItemReturn.precio_unitario
+          })
+          .eq("id", selectedVenta.cliente_id);
+      }
+
+      alert("Devolución procesada con éxito");
+      setIsReturnOpen(false);
+      setSelectedItemReturn(null);
+    } catch (error) {
+      console.error("Error in return:", error);
+      alert("Error al procesar la devolución");
+    } finally {
+      setIsReturning(false);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col gap-6">
       <div className="flex items-start justify-between">
@@ -289,7 +361,7 @@ export default function SalesHistoryPage() {
                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Ítems Vendidos</p>
                    <div className="space-y-2">
                       {selectedVenta.items?.map((item: any, i: number) => (
-                        <div key={i} className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl bg-white shadow-sm ring-1 ring-slate-100/50">
+                        <div key={i} className="group flex items-center justify-between p-4 border border-slate-100 rounded-2xl bg-white shadow-sm ring-1 ring-slate-100/50 hover:border-emerald-200 transition-all">
                            <div className="flex-1">
                               <p className="font-black text-slate-800 text-sm">{item.productos?.nombre || "Producto Eliminado"}</p>
                               <p className="text-[10px] font-bold text-slate-400 uppercase">{item.productos?.sku || "S/N"}</p>
@@ -297,7 +369,29 @@ export default function SalesHistoryPage() {
                            <div className="text-right">
                               <p className="font-bold text-slate-600 text-xs">x{item.cantidad}</p>
                               <p className="font-black text-emerald-700">{formatCurrency(item.subtotal)}</p>
-                           </div>
+                            </div>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all"
+                              onClick={() => {
+                                setSelectedItemReturn(item);
+                                setIsReturnOpen(true);
+                              }}
+                            >
+                              <RefreshCw className="w-4 h-4" />
+                            </Button>
+                               <Button
+                                 size="icon"
+                                 variant="ghost"
+                                 className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all"
+                                 onClick={() => {
+                                   setSelectedItemReturn(item);
+                                   setIsReturnOpen(true);
+                                 }}
+                               >
+                                 <RefreshCw className="w-4 h-4" />
+                               </Button>
                         </div>
                       ))}
                    </div>
@@ -349,6 +443,106 @@ export default function SalesHistoryPage() {
           )}
         </DialogContent>
       </Dialog>
+
+       {/* DIALOG DE OPCIONES DE DEVOLUCIÓN */}
+       <Dialog open={isReturnOpen} onOpenChange={setIsReturnOpen}>
+         <DialogContent className="max-w-md rounded-[3rem] border-none shadow-2xl p-8 bg-white">
+           <DialogHeader className="text-center">
+             <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <RefreshCw className="w-8 h-8" />
+             </div>
+             <DialogTitle className="text-2xl font-black text-slate-800">Procesar Devolución</DialogTitle>
+             <DialogDescription className="text-slate-500 font-medium text-center">
+               ¿Cómo deseas reintegrar el dinero al cliente por este ítem?
+               <p className="mt-2 text-slate-900 font-black">{selectedItemReturn?.productos?.nombre}</p>
+             </DialogDescription>
+           </DialogHeader>
+
+           <div className="grid gap-4 mt-6">
+              <Button
+                disabled={isReturning}
+                onClick={() => handleVentaReturn('efectivo')}
+                className="h-20 bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 rounded-3xl flex flex-col gap-1 items-center justify-center transition-all group shadow-sm"
+              >
+                <div className="flex items-center gap-2 text-emerald-600 font-black uppercase text-[10px] tracking-widest">
+                   <DollarSign className="w-3.5 h-3.5" /> Reembolso Instantáneo
+                </div>
+                <span className="font-black text-lg">Devolver en Efectivo</span>
+              </Button>
+
+              <Button
+                disabled={isReturning || !selectedVenta?.cliente_id}
+                onClick={() => handleVentaReturn('saldo_a_favor')}
+                className={cn(
+                  "h-20 border-2 rounded-3xl flex flex-col gap-1 items-center justify-center transition-all group shadow-sm",
+                  !selectedVenta?.cliente_id 
+                    ? "bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed" 
+                    : "bg-white border-slate-100 hover:border-sky-500 hover:bg-sky-50 text-slate-800"
+                )}
+              >
+                <div className="flex items-center gap-2 text-sky-600 font-black uppercase text-[10px] tracking-widest">
+                   <Wallet className="w-3.5 h-3.5" /> Crédito CRM
+                </div>
+                <span className="font-black text-lg">Abonar Saldo a Favor</span>
+                {!selectedVenta?.cliente_id && <p className="text-[8px] font-bold text-slate-400 text-center">REQUIERE CLIENTE REGISTRADO</p>}
+              </Button>
+           </div>
+
+           <Button variant="ghost" onClick={() => setIsReturnOpen(false)} className="mt-4 w-full font-bold text-slate-400">
+              CANCELAR
+           </Button>
+         </DialogContent>
+       </Dialog>
+
+       {/* DIALOG DE OPCIONES DE DEVOLUCIÓN */}
+       <Dialog open={isReturnOpen} onOpenChange={setIsReturnOpen}>
+         <DialogContent className="max-w-md rounded-[3rem] border-none shadow-2xl p-8 bg-white text-slate-900">
+           <DialogHeader className="text-center">
+             <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <RefreshCw className="w-8 h-8" />
+             </div>
+             <DialogTitle className="text-2xl font-black text-slate-800">Procesar Devolución</DialogTitle>
+             <DialogDescription className="text-slate-500 font-medium text-center">
+               ¿Cómo deseas reintegrar el dinero al cliente por este ítem?
+               <p className="mt-2 text-slate-900 font-black">{selectedItemReturn?.productos?.nombre}</p>
+             </DialogDescription>
+           </DialogHeader>
+
+           <div className="grid gap-4 mt-6">
+              <Button
+                disabled={isReturning}
+                onClick={() => handleVentaReturn('efectivo')}
+                className="h-20 bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 rounded-3xl flex flex-col gap-1 items-center justify-center transition-all group shadow-sm"
+              >
+                <div className="flex items-center gap-2 text-emerald-600 font-black uppercase text-[10px] tracking-widest">
+                   <DollarSign className="w-3.5 h-3.5" /> Reembolso Instantáneo
+                </div>
+                <span className="font-black text-lg">Devolver en Efectivo</span>
+              </Button>
+
+              <Button
+                disabled={isReturning || !selectedVenta?.cliente_id}
+                onClick={() => handleVentaReturn('saldo_a_favor')}
+                className={cn(
+                  "h-20 border-2 rounded-3xl flex flex-col gap-1 items-center justify-center transition-all group shadow-sm",
+                  !selectedVenta?.cliente_id 
+                    ? "bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed" 
+                    : "bg-white border-slate-100 hover:border-sky-500 hover:bg-sky-50 text-slate-800"
+                )}
+              >
+                <div className="flex items-center gap-2 text-sky-600 font-black uppercase text-[10px] tracking-widest">
+                   <Wallet className="w-3.5 h-3.5" /> Crédito CRM
+                </div>
+                <span className="font-black text-lg">Abonar Saldo a Favor</span>
+                {!selectedVenta?.cliente_id && <p className="text-[8px] font-bold text-slate-400 text-center">REQUIERE CLIENTE REGISTRADO</p>}
+              </Button>
+           </div>
+
+           <Button variant="ghost" onClick={() => setIsReturnOpen(false)} className="mt-4 w-full font-bold text-slate-400">
+              CANCELAR
+           </Button>
+         </DialogContent>
+       </Dialog>
     </div>
   );
 }
