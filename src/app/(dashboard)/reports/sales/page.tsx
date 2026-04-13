@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, Calendar, User, ShoppingBag, Eye, Download, Filter, 
-  ArrowUpRight, Clock, UserCheck
+  ArrowUpRight, Clock, UserCheck, RefreshCw, DollarSign, Wallet
 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
 } from "@/components/ui/dialog";
@@ -41,6 +42,10 @@ export default function SalesHistoryPage() {
   const [search, setSearch] = useState("");
   const [selectedVenta, setSelectedVenta] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isReturnOpen, setIsReturnOpen] = useState(false);
+  const [selectedItemReturn, setSelectedItemReturn] = useState<any>(null);
+  const [isReturning, setIsReturning] = useState(false);
+  const { profile: user } = useUserProfile();
 
   useEffect(() => {
     if (tenant) fetchData();
