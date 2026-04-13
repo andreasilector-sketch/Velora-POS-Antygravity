@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, Calendar, User, ShoppingBag, Eye, Download, Filter, 
-  ArrowUpRight, Clock, UserCheck, RefreshCw, DollarSign, Wallet
-} from "lucide-react";
+  ArrowUpRight, Clock, UserCheck, RefreshCw, DollarSign, Wallet, UserPlus, Check, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
@@ -45,6 +44,9 @@ export default function SalesHistoryPage() {
   const [isReturnOpen, setIsReturnOpen] = useState(false);
   const [selectedItemReturn, setSelectedItemReturn] = useState<any>(null);
   const [isReturning, setIsReturning] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
+  const [clientSearch, setClientSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const { profile: user } = useUserProfile();
 
   useEffect(() => {
@@ -58,8 +60,12 @@ export default function SalesHistoryPage() {
       .from("ventas")
       .select(`
         *,
-        clientes:cliente_id(nombre, documento),
-        perfiles:usuario_id(nombre)
+        clientes:cliente_id(id, nombre, documento, puntos, saldo_a_favor),
+        perfiles:usuario_id(nombre),
+        items:venta_items(
+          cantidad,
+          productos:producto_id(nombre)
+        )
       `)
       .eq("tenant_id", tenant!.id)
       .order("fecha", { ascending: false });
@@ -87,6 +93,44 @@ export default function SalesHistoryPage() {
     v.id.toLowerCase().includes(search.toLowerCase()) ||
     (v.perfiles?.nombre || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleLinkClient = async (clientId: string) => {
+    if (!selectedVenta) return;
+    setIsLinking(true);
+    try {
+      const { data: clientData } = await (supabase.from("clientes") as any)
+        .select("id, nombre, documento, puntos, saldo_a_favor")
+        .eq("id", clientId)
+        .single();
+
+      await (supabase.from("ventas") as any)
+        .update({ cliente_id: clientId })
+        .eq("id", selectedVenta.id);
+      
+      setSelectedVenta({ ...selectedVenta, cliente_id: clientId, clientes: clientData });
+      fetchData();
+      alert("Cliente vinculado con éxito");
+      setIsLinking(false);
+    } catch (e) {
+      console.error(e);
+      alert("Error al vincular cliente");
+    } finally {
+      setIsLinking(false);
+    }
+  };
+
+  const searchClients = async (val: string) => {
+    setClientSearch(val);
+    if (val.length < 3) {
+      setSearchResults([]);
+      return;
+    }
+    const { data } = await (supabase.from("clientes") as any)
+      .select("*")
+      .ilike("nombre", `%${val}%`)
+      .limit(5);
+    setSearchResults(data || []);
+  };
 
   const formatCurrency = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(v);
 
@@ -234,6 +278,7 @@ export default function SalesHistoryPage() {
                   <TableHead className="pl-8 font-black text-[10px] text-slate-400 uppercase tracking-widest h-14">REF # / Fecha y Hora</TableHead>
                   <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14">Cajero</TableHead>
                   <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14">Cliente</TableHead>
+                  <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14 text-center">Resumen / Concepto</TableHead>
                   <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14 text-center">Método</TableHead>
                   <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14 text-right">Total</TableHead>
                   <TableHead className="pr-8 h-14"></TableHead>
@@ -267,9 +312,8 @@ export default function SalesHistoryPage() {
                     {groupVentas.map(v => (
                       <TableRow key={v.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
                         <TableCell className="pl-8 py-4">
-                           <span className="font-black text-slate-800 text-sm block">#{v.id.substring(0, 8).toUpperCase()}</span>
+                           <span className="font-black text-slate-800 text-sm block">#{String(v.ticket_numero || 0).padStart(4, '0')}</span>
                            <span className="text-[10px] font-bold text-slate-400 flex flex-col gap-0.5 mt-0.5">
-                              <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(v.fecha).toLocaleDateString()}</span>
                               <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(v.fecha).toLocaleString("es-CO", { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                            </span>
                         </TableCell>
@@ -278,13 +322,20 @@ export default function SalesHistoryPage() {
                               <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 font-black text-xs flex items-center justify-center">
                                  {(v.perfiles?.nombre || "C").substring(0, 2).toUpperCase()}
                               </div>
-                              <span className="font-bold text-slate-700 text-sm">{v.perfiles?.nombre || "Sistema"}</span>
+                              <span className="font-bold text-slate-700 text-sm whitespace-nowrap">{v.perfiles?.nombre || "Sistema"}</span>
                            </div>
                         </TableCell>
                         <TableCell>
-                           <span className={cn("font-bold text-sm", v.clientes ? "text-slate-800" : "text-slate-400 italic")}>
+                           <span className={cn("font-bold text-sm whitespace-nowrap", v.clientes ? "text-slate-800" : "text-slate-400 italic")}>
                               {v.clientes?.nombre || "Venta General"}
                            </span>
+                        </TableCell>
+                        <TableCell className="max-w-[200px]">
+                           <p className="text-[10px] font-medium text-slate-500 truncate uppercase">
+                              {v.items && v.items.length > 0 
+                                ? v.items.map((i: any) => `${i.cantidad}x ${i.productos?.nombre}`).join(", ")
+                                : "Sin items"}
+                           </p>
                         </TableCell>
                         <TableCell className="text-center">
                            <Badge className={cn(
@@ -331,7 +382,7 @@ export default function SalesHistoryPage() {
                  <div className="relative z-10 flex justify-between items-start">
                     <div>
                        <Badge className="bg-emerald-500 text-white border-none font-black text-[10px] py-1 px-3 mb-3">RECIBO DIGITAL</Badge>
-                       <h2 className="text-3xl font-black tracking-tight leading-none">Venta #{selectedVenta.id.substring(0, 8).toUpperCase()}</h2>
+                       <h2 className="text-3xl font-black tracking-tight leading-none">Venta #{String(selectedVenta.ticket_numero || 0).padStart(4, '0')}</h2>
                        <p className="text-slate-400 font-bold text-xs mt-2 flex items-center gap-2">
                           <Calendar className="w-3.5 h-3.5" /> {new Date(selectedVenta.fecha).toLocaleString()}
                        </p>
@@ -355,9 +406,40 @@ export default function SalesHistoryPage() {
                    </div>
                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Cliente</p>
-                      <p className="font-bold text-slate-800 flex items-center gap-2 text-sm truncate">
-                         {selectedVenta.clientes?.nombre || "Venta General"}
-                      </p>
+                      {selectedVenta.clientes ? (
+                         <p className="font-bold text-slate-800 flex items-center gap-2 text-sm truncate">
+                            <UserCheck className="w-4 h-4 text-emerald-600" /> {selectedVenta.clientes?.nombre}
+                         </p>
+                      ) : (
+                         <div className="space-y-2">
+                            <p className="font-bold text-slate-400 italic text-xs">VENTA GENERAL</p>
+                            <div className="flex flex-col gap-2">
+                               <div className="relative">
+                                  <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
+                                  <Input 
+                                    placeholder="Buscar cliente..." 
+                                    className="h-8 pl-8 text-[10px] rounded-lg"
+                                    value={clientSearch}
+                                    onChange={(e) => searchClients(e.target.value)}
+                                  />
+                               </div>
+                               {searchResults.length > 0 && (
+                                  <div className="bg-white border border-slate-100 rounded-lg shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-1">
+                                     {searchResults.map(c => (
+                                        <button 
+                                          key={c.id} 
+                                          onClick={() => handleLinkClient(c.id)}
+                                          className="w-full p-2 text-left text-[10px] hover:bg-emerald-50 border-b border-slate-50 last:border-none flex justify-between items-center group"
+                                        >
+                                           <span className="font-bold text-slate-600 truncate">{c.nombre}</span>
+                                           <UserPlus className="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 transition-all" />
+                                        </button>
+                                     ))}
+                                  </div>
+                               )}
+                            </div>
+                         </div>
+                      )}
                    </div>
                 </div>
 
@@ -386,17 +468,6 @@ export default function SalesHistoryPage() {
                             >
                               <RefreshCw className="w-4 h-4" />
                             </Button>
-                               <Button
-                                 size="icon"
-                                 variant="ghost"
-                                 className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all"
-                                 onClick={() => {
-                                   setSelectedItemReturn(item);
-                                   setIsReturnOpen(true);
-                                 }}
-                               >
-                                 <RefreshCw className="w-4 h-4" />
-                               </Button>
                         </div>
                       ))}
                    </div>
