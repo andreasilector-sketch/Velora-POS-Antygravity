@@ -237,7 +237,7 @@ export default function SalesHistoryPage() {
                         </TableCell>
                       </TableRow>
                     ))}
-                  </React.Fragment>
+                  </Fragment>
                 ))}
               </TableBody>
             </Table>
