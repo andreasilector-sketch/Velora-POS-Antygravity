@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { 
@@ -181,7 +181,7 @@ export default function SalesHistoryPage() {
                     return acc;
                   }, {} as Record<string, Venta[]>)
                 ).map(([dateLabel, groupVentas]) => (
-                  <React.Fragment key={dateLabel}>
+                  <Fragment key={dateLabel}>
                     <TableRow className="bg-slate-100/50 hover:bg-slate-100/50">
                       <TableCell colSpan={6} className="py-2 pl-8 font-bold text-slate-600 text-xs uppercase tracking-widest">
                         {dateLabel}
