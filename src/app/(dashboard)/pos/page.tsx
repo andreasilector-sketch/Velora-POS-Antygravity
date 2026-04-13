@@ -384,6 +384,16 @@ function AdvancedPOSPage() {
             } as any)
             .eq("id", selectedClient.id);
         }
+
+        // --- Lógica de Puntos (1 punto por cada $1.000) ---
+        const earnedPoints = Math.floor(total / 1000);
+        if (earnedPoints > 0) {
+           await (supabase.from("clientes" as any) as any)
+             .update({
+                puntos: (selectedClient.puntos || 0) + earnedPoints
+             } as any)
+             .eq("id", selectedClient.id);
+        }
       }
 
       // 4. Actualizar Stock + Registrar Movimiento de Inventario (transacción atómica en servidor)
@@ -425,7 +435,8 @@ function AdvancedPOSPage() {
         totalDiscount,
         client: selectedClient,
         cashReceived: parseFormattedNumber(cashReceived),
-        change: Math.max(0, parseFormattedNumber(cashReceived) - total)
+        change: Math.max(0, parseFormattedNumber(cashReceived) - total),
+        earnedPoints: Math.floor(total / 1000)
       };
 
       setLastVenta(finalVentaData);
@@ -656,9 +667,15 @@ function AdvancedPOSPage() {
                      <User className="w-5 h-5" />
                   </div>
                   <div className="flex flex-col">
-                     <span className={cn("text-xs font-black uppercase tracking-tight", selectedClient ? "text-slate-800" : "text-slate-400")}>
-                        {selectedClient ? selectedClient.nombre : "Venta General"}
-                     </span>
+                      <span className={cn("text-xs font-black uppercase tracking-tight", selectedClient ? "text-slate-800" : "text-slate-400")}>
+                         {selectedClient ? selectedClient.nombre : "Venta General"}
+                      </span>
+                      {selectedClient && (
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md border border-emerald-100 w-fit mt-1">
+                          <Sparkles className="w-2.5 h-2.5" />
+                          <span className="text-[9px] font-black uppercase tracking-tighter underline decoration-dotted">{selectedClient.puntos || 0} Ptos Disponibles</span>
+                        </div>
+                      )}
                      <span className="text-[10px] font-bold text-slate-400">
                         {selectedClient ? `DOC: ${selectedClient.documento || "???"}` : "Toca para vincular"}
                      </span>
@@ -807,7 +824,24 @@ function AdvancedPOSPage() {
                         <div className="relative z-10">
                            <p className="font-extrabold text-xs uppercase tracking-widest text-emerald-400 mb-2">Cliente Asociado</p>
                            <p className="font-black text-sm leading-tight group-hover:text-emerald-300 transition-colors uppercase">{selectedClient.nombre}</p>
-                           <p className="text-base font-bold opacity-50 mt-2">DOC: {selectedClient.documento || "CC ??????"}</p>
+                           
+                           <div className="mt-4 p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                              <div className="flex justify-between items-center mb-3">
+                                 <div className="flex flex-col">
+                                    <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Puntos Totales</span>
+                                    <span className="text-lg font-black">{selectedClient.puntos || 0}</span>
+                                 </div>
+                                 <Sparkles className="w-5 h-5 text-emerald-400 animate-pulse" />
+                              </div>
+                              <Button 
+                                 onClick={() => alert("Módulo de Redención: Próximamente")}
+                                 className="w-full h-10 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl"
+                              >
+                                 Redimir Puntos
+                              </Button>
+                           </div>
+
+                           <p className="text-[10px] font-bold opacity-30 mt-4 uppercase">DOC: {selectedClient.documento || "CC ??????"}</p>
                         </div>
                         <User className="absolute -right-4 -bottom-4 w-16 h-16 text-white/5 rotate-12" />
                      </div>
@@ -1173,6 +1207,19 @@ function AdvancedPOSPage() {
                   <p className="text-base font-black text-slate-400 uppercase tracking-widest">Monto Total Cobrado</p>
                   <p className="text-5xl font-black text-slate-900 tracking-tighter">{formatCurrency(lastVenta?.total || 0)}</p>
                </div>
+
+               {lastVenta?.earnedPoints > 0 && lastVenta?.client && (
+                  <div className="flex items-center gap-4 p-5 bg-emerald-50 rounded-[2rem] border-2 border-emerald-100 animate-in slide-in-from-bottom-4 duration-500">
+                     <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                        <Sparkles className="w-6 h-6 text-emerald-600" />
+                     </div>
+                     <div className="text-left">
+                        <p className="text-xs font-black text-emerald-600 uppercase tracking-widest">¡Nuevos Puntos Ganados!</p>
+                        <p className="text-2xl font-black text-emerald-800">+{lastVenta.earnedPoints} Puntos</p>
+                        <p className="text-[10px] font-bold text-emerald-500 mt-0.5">Saldo total: {(lastVenta.client.puntos || 0) + lastVenta.earnedPoints} Ptos</p>
+                     </div>
+                  </div>
+               )}
 
                {lastVenta?.payment_type !== 'mixto' && selectedMethod === 'efectivo' && lastVenta?.change > 0 && (
                   <div className="bg-amber-50 rounded-3xl p-6 border-2 border-amber-100/50">
