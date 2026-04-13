@@ -84,7 +84,7 @@ export default function DashboardPage() {
       .eq("tenant_id", tenant.id)
       .eq("activo", true)
       .gt("stock_minimo", 0);
-      
+
     if (data) {
       const lowStock = data.filter((p: any) => (p.stock_actual || 0) <= p.stock_minimo).slice(0, 5);
       setAlertItems(lowStock);
@@ -152,18 +152,18 @@ export default function DashboardPage() {
         {!isCajero && (
           <div className="hidden md:flex gap-4 items-center">
             <div className="relative group">
-               <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-               <input 
-                  type="text" 
-                  placeholder="Buscar producto o cliente..." 
-                  className="pl-9 pr-4 h-10 w-64 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      const val = (e.target as HTMLInputElement).value;
-                      router.push(`/products?q=${encodeURIComponent(val)}`);
-                    }
-                  }}
-               />
+              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+              <input
+                type="text"
+                placeholder="Buscar producto o cliente..."
+                className="pl-9 pr-4 h-10 w-64 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = (e.target as HTMLInputElement).value;
+                    router.push(`/products?q=${encodeURIComponent(val)}`);
+                  }
+                }}
+              />
             </div>
             <div className="px-4 py-2 bg-white border border-slate-200 rounded-2xl shadow-sm flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -221,8 +221,8 @@ export default function DashboardPage() {
               <div className="flex-1 overflow-y-auto space-y-4 pr-2">
                 {alertItems.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full opacity-50 space-y-4">
-                     <AlertTriangle className="w-12 h-12 text-slate-300" />
-                     <p className="text-sm text-slate-500 font-bold italic text-center">Stock en niveles óptimos</p>
+                    <AlertTriangle className="w-12 h-12 text-slate-300" />
+                    <p className="text-sm text-slate-500 font-bold italic text-center">Stock en niveles óptimos</p>
                   </div>
                 ) : alertItems.map((item: any) => (
                   <div key={item.id} className="flex justify-between items-center p-3.5 bg-rose-50/50 border border-rose-100 rounded-xl hover:bg-rose-50 transition-colors">

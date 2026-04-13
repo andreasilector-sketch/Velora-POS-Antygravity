@@ -1218,7 +1218,7 @@ function AdvancedPOSPage() {
       )}
       {/* MODAL SABIDURÍA NATURISTA (IA) */}
       <Dialog open={!!selectedProductInfo} onOpenChange={() => setSelectedProductInfo(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col">
+        <DialogContent className="w-[95vw] sm:max-w-[95vw] md:max-w-6xl lg:max-w-7xl max-h-[90vh] pb-0 mb-0 pt-0 mt-0 pr-0 pl-0 rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col">
           <div className="bg-emerald-600 p-6 xl:p-8 text-white relative overflow-hidden shrink-0">
              <div className="relative z-10 flex items-center gap-4">
                 <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-md">

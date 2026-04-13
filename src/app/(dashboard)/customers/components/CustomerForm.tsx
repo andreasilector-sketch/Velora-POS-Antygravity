@@ -172,12 +172,12 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
                    </h3>
                    <Badge className="bg-rose-600 text-white border-none text-[8px] px-2 font-black uppercase">Crédito Pro</Badge>
                 </div>
-                <div className="relative">
-                   <span className="absolute left-4 top-4 text-rose-400 font-extrabold text-xl">$</span>
+                <div className="relative flex items-center">
+                   <span className="absolute left-5 text-rose-400 font-extrabold text-xl z-10">$</span>
                    <Input 
                      type="number" 
                      {...register("credito_disponible")} 
-                     className="h-14 pl-10 border-rose-200 bg-white rounded-2xl text-2xl font-black text-rose-800 focus:ring-rose-500 shadow-inner px-4" 
+                     className="h-14 pl-12 pr-4 border-rose-200 bg-white rounded-2xl text-2xl font-black text-rose-800 focus:ring-rose-500 shadow-inner relative z-0" 
                    />
                 </div>
                 <p className="text-[9px] text-rose-400 font-bold uppercase text-center tracking-widest">Límite máximo de deuda autorizada</p>

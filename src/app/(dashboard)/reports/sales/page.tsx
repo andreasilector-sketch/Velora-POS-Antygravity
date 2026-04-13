@@ -154,7 +154,7 @@ export default function SalesHistoryPage() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50/80 border-none">
-                  <TableHead className="pl-8 font-black text-[10px] text-slate-400 uppercase tracking-widest h-14">REF # / Hora</TableHead>
+                  <TableHead className="pl-8 font-black text-[10px] text-slate-400 uppercase tracking-widest h-14">REF # / Fecha y Hora</TableHead>
                   <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14">Cajero</TableHead>
                   <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14">Cliente</TableHead>
                   <TableHead className="font-black text-[10px] text-slate-400 uppercase tracking-widest h-14 text-center">Método</TableHead>
@@ -163,51 +163,81 @@ export default function SalesHistoryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map(v => (
-                  <TableRow key={v.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
-                    <TableCell className="pl-8 py-4">
-                       <span className="font-black text-slate-800 text-sm block">#{v.id.substring(0, 8).toUpperCase()}</span>
-                       <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 mt-0.5">
-                          <Clock className="w-3 h-3" /> {new Date(v.fecha).toLocaleString("es-CO", { hour: '2-digit', minute: '2-digit', hour12: true })}
-                       </span>
-                    </TableCell>
-                    <TableCell>
-                       <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 font-black text-xs flex items-center justify-center">
-                             {(v.perfiles?.nombre || "C").substring(0, 2).toUpperCase()}
-                          </div>
-                          <span className="font-bold text-slate-700 text-sm">{v.perfiles?.nombre || "Sistema"}</span>
-                       </div>
-                    </TableCell>
-                    <TableCell>
-                       <span className={cn("font-bold text-sm", v.clientes ? "text-slate-800" : "text-slate-400 italic")}>
-                          {v.clientes?.nombre || "Venta General"}
-                       </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                       <Badge className={cn(
-                          "rounded-lg font-black text-[9px] uppercase tracking-wider py-1 px-2.5",
-                          v.metodo_pago === 'efectivo' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                          v.metodo_pago === 'tarjeta' ? "bg-sky-50 text-sky-600 border-sky-100" :
-                          "bg-violet-50 text-violet-600 border-violet-100"
-                       )}>
-                          {v.metodo_pago}
-                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-black text-lg text-slate-900 pr-4">
-                       {formatCurrency(v.total)}
-                    </TableCell>
-                    <TableCell className="pr-8 text-right">
-                       <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-10 w-10 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all opacity-0 group-hover:opacity-100"
-                          onClick={() => openDetail(v)}
-                       >
-                          <Eye className="w-5 h-5" />
-                       </Button>
-                    </TableCell>
-                  </TableRow>
+                {Object.entries(
+                  filtered.reduce((acc, v) => {
+                    const d = new Date(v.fecha);
+                    d.setHours(0,0,0,0);
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    const diffTime = Math.abs(today.getTime() - d.getTime());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let key = d.toLocaleDateString("es-CO", { weekday: 'long', day: 'numeric', month: 'long' });
+                    if (diffDays === 0) key = "Hoy";
+                    else if (diffDays === 1) key = "Ayer";
+
+                    if (!acc[key]) acc[key] = [];
+                    acc[key].push(v);
+                    return acc;
+                  }, {} as Record<string, Venta[]>)
+                ).map(([dateLabel, groupVentas]) => (
+                  <React.Fragment key={dateLabel}>
+                    <TableRow className="bg-slate-100/50 hover:bg-slate-100/50">
+                      <TableCell colSpan={6} className="py-2 pl-8 font-bold text-slate-600 text-xs uppercase tracking-widest">
+                        {dateLabel}
+                      </TableCell>
+                    </TableRow>
+                    {groupVentas.map(v => (
+                      <TableRow key={v.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                        <TableCell className="pl-8 py-4">
+                           <span className="font-black text-slate-800 text-sm block">#{v.id.substring(0, 8).toUpperCase()}</span>
+                           <span className="text-[10px] font-bold text-slate-400 flex flex-col gap-0.5 mt-0.5">
+                              <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(v.fecha).toLocaleDateString()}</span>
+                              <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(v.fecha).toLocaleString("es-CO", { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                           </span>
+                        </TableCell>
+                        <TableCell>
+                           <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 font-black text-xs flex items-center justify-center">
+                                 {(v.perfiles?.nombre || "C").substring(0, 2).toUpperCase()}
+                              </div>
+                              <span className="font-bold text-slate-700 text-sm">{v.perfiles?.nombre || "Sistema"}</span>
+                           </div>
+                        </TableCell>
+                        <TableCell>
+                           <span className={cn("font-bold text-sm", v.clientes ? "text-slate-800" : "text-slate-400 italic")}>
+                              {v.clientes?.nombre || "Venta General"}
+                           </span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                           <Badge className={cn(
+                              "rounded-lg font-black text-[9px] uppercase tracking-wider py-1 px-2.5",
+                              v.estado === 'anulada' ? "bg-rose-50 text-rose-600 border-rose-100" :
+                              v.metodo_pago === 'efectivo' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                              v.metodo_pago === 'tarjeta' ? "bg-sky-50 text-sky-600 border-sky-100" :
+                              "bg-violet-50 text-violet-600 border-violet-100"
+                           )}>
+                              {v.estado === 'anulada' ? 'ANULADA' : v.metodo_pago}
+                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-black text-lg text-slate-900 pr-4">
+                           <span className={v.estado === 'anulada' ? "line-through text-slate-300" : ""}>
+                             {formatCurrency(v.total)}
+                           </span>
+                        </TableCell>
+                        <TableCell className="pr-8 text-right">
+                           <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-10 w-10 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all opacity-0 group-hover:opacity-100"
+                              onClick={() => openDetail(v)}
+                           >
+                              <Eye className="w-5 h-5" />
+                           </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>
@@ -291,10 +321,27 @@ export default function SalesHistoryPage() {
               </div>
 
               <div className="p-8 pt-0 flex gap-4">
-                 <Button variant="outline" className="flex-1 h-14 rounded-2xl border-slate-200 font-black text-sm shadow-sm">
+                 <Button 
+                    variant="outline" 
+                    className="flex-1 h-14 rounded-2xl border-slate-200 font-black text-sm shadow-sm"
+                    onClick={async () => {
+                       if (confirm("¿Estás seguro de anular esta venta?")) {
+                          await supabase.from("ventas").update({ estado: 'anulada' }).eq("id", selectedVenta.id);
+                          alert("Venta anulada con éxito.");
+                          fetchData();
+                          setIsDetailOpen(false);
+                       }
+                    }}
+                 >
                     ANULAR VENTA
                  </Button>
-                 <Button className="flex-1 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-emerald-100">
+                 <Button 
+                    className="flex-1 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-emerald-100"
+                    onClick={() => {
+                        alert("Enviando orden a la impresora térmica...");
+                        // window.print(); // Lógica real
+                    }}
+                 >
                     REIMPRIMIR TICKET
                  </Button>
               </div>

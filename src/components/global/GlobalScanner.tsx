@@ -198,6 +198,16 @@ export function GlobalScanner() {
                   </Button>
                 </div>
                 
+                <Button 
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    router.push(`/pos?add=${scannedProduct.id}`);
+                  }}
+                  className="w-full h-16 mt-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg shadow-lg shadow-emerald-100 rounded-2xl flex gap-3 uppercase tracking-widest"
+                >
+                  <Package className="w-6 h-6" /> AGREGAR AL CARRITO
+                </Button>
+                
                 {showIA && (
                   <div className="mt-4 p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl animate-in slide-in-from-top-4 fade-in duration-300">
                     <div className="flex items-center gap-2 mb-3">
