@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 
 type Venta = {
   id: string;
+  ticket_numero: number;
   fecha: string;
   total: number;
   subtotal: number;
@@ -28,7 +29,7 @@ type Venta = {
   estado: string;
   cliente_id: string | null;
   usuario_id: string;
-  clientes?: { nombre: string; documento: string | null } | null;
+  clientes?: { id: string; nombre: string; documento: string | null; puntos?: number; saldo_a_favor?: number } | null;
   perfiles?: { nombre: string } | null; // Cajero
   items?: any[];
 };
