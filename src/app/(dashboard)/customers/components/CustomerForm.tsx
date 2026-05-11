@@ -101,7 +101,7 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
         {/* COLUMNA IZQUIERDA: IDENTIDAD Y CRM (8 cols) */}
         <div className="lg:col-span-8 space-y-6">
           
-          {/* SECCIÃ“N: PERFIL MAESTRO (Bento Cell) */}
+          {/* SECCIÓN: PERFIL MAESTRO (Bento Cell) */}
           <div className="bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100 space-y-6">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
               <User className="w-5 h-5 text-emerald-500" /> PERFIL MAESTRO DEL CLIENTE
@@ -109,7 +109,7 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                <div className="space-y-3">
-                 <Label className="font-black text-slate-700 ml-1">Nombre Completo o RazÃ³n Social</Label>
+                 <Label className="font-black text-slate-700 ml-1">Nombre Completo o Razón Social</Label>
                  <Input 
                    {...register("nombre")} 
                    placeholder="Ej. Alexander Pierce o BioVida Salud S.A.S" 
@@ -129,7 +129,7 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <Label className="font-black text-slate-700 ml-1">Nivel de FidelizaciÃ³n</Label>
+                <Label className="font-black text-slate-700 ml-1">Nivel de Fidelización</Label>
                 <Select 
                   onValueChange={(val: string | null) => setValue("tipo_cliente", val || "normal")} 
                   defaultValue={customer?.tipo_cliente || "normal"}
@@ -164,15 +164,15 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
             </div>
           </div>
 
-          {/* SECCIÃ“N: COMUNICACIÃ“N Y CARTERA (Bento Cell) */}
-          {/* SECCIÃ“N: CREDIT & LOYALTY (Bento Cell) */}
+          {/* SECCIÓN: COMUNICACIÓN Y CARTERA (Bento Cell) */}
+          {/* SECCIÓN: CREDIT & LOYALTY (Bento Cell) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <div className="bg-rose-50/30 p-6 rounded-[2rem] border border-rose-100 space-y-4">
                 <div className="flex items-center justify-between">
                    <h3 className="text-[10px] font-black text-rose-700 uppercase tracking-[0.2em] flex items-center gap-2">
                      <CreditCard className="w-4 h-4" /> CAPACIDAD DE FIADO
                    </h3>
-                   <Badge className="bg-rose-600 text-white border-none text-[8px] px-2 font-black uppercase">CrÃ©dito Pro</Badge>
+                   <Badge className="bg-rose-600 text-white border-none text-[8px] px-2 font-black uppercase">Crédito Pro</Badge>
                 </div>
                 <div className="relative flex items-center">
                    <span className="absolute left-5 text-rose-400 font-extrabold text-xl z-10">$</span>
@@ -182,7 +182,7 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
                      className="h-14 pl-12 pr-4 border-rose-200 bg-white rounded-2xl text-2xl font-black text-rose-800 focus:ring-rose-500 shadow-inner relative z-0" 
                    />
                 </div>
-                <p className="text-[9px] text-rose-400 font-bold uppercase text-center tracking-widest">LÃ­mite mÃ¡ximo de deuda autorizada</p>
+                <p className="text-[9px] text-rose-400 font-bold uppercase text-center tracking-widest">Límite máximo de deuda autorizada</p>
              </div>
 
              <div className="bg-amber-50/30 p-6 rounded-[2rem] border border-amber-100 space-y-4">
@@ -200,14 +200,14 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
                    />
                    <Sparkles className="absolute right-4 top-4 w-6 h-6 text-amber-200" />
                 </div>
-                <p className="text-[9px] text-amber-500 font-bold uppercase text-center tracking-widest">Balance actual de puntos para redenciÃ³n</p>
+                <p className="text-[9px] text-amber-500 font-bold uppercase text-center tracking-widest">Balance actual de puntos para redención</p>
              </div>
           </div>
         </div>
 
         <div className="lg:col-span-4 space-y-6">
           
-          {/* SECCIÃ“N: COMUNICACIÃ“N RÃPIDA (Bento Cell) */}
+          {/* SECCIÓN: COMUNICACIÓN RíPIDA (Bento Cell) */}
           <div className="bg-emerald-50/30 p-6 rounded-[2rem] border border-emerald-100 space-y-4">
              <h3 className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] flex items-center gap-2">
                <Phone className="w-5 h-5" /> Enlace de Contacto
@@ -224,22 +224,22 @@ export function CustomerForm({ customer, onSave, onCancel }: any) {
              </div>
           </div>
 
-          {/* SECCIÃ“N: LOCALIZACIÃ“N (Bento Cell) */}
+          {/* SECCIÓN: LOCALIZACIÓN (Bento Cell) */}
           <div className="bg-slate-900 p-6 rounded-[2rem] text-white space-y-4 relative overflow-hidden">
              <div className="relative z-10 space-y-4">
                 <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <MapPin className="w-5 h-5" /> UbicaciÃ³n
+                  <MapPin className="w-5 h-5" /> Ubicación
                 </h3>
                 <Input 
                   {...register("direccion")} 
-                  placeholder="DirecciÃ³n..." 
+                  placeholder="Dirección..." 
                   className="h-12 border-white/10 bg-white/5 rounded-xl text-white placeholder:text-slate-600 focus:ring-emerald-500" 
                 />
              </div>
              <MapPin className="absolute -right-8 -bottom-8 w-32 h-32 text-emerald-500/10 rotate-12" />
           </div>
 
-          {/* SECCIÃ“N: NOTAS (Bento Cell) */}
+          {/* SECCIÓN: NOTAS (Bento Cell) */}
           <div className="bg-violet-50/30 p-6 rounded-[2rem] border border-violet-100 space-y-4">
             <h3 className="text-[10px] font-black text-violet-700 uppercase tracking-[0.2em] flex items-center gap-2">
                <Target className="w-5 h-5" /> Notas CRM

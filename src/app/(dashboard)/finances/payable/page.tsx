@@ -141,7 +141,7 @@ export default function AccountsPayablePage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">MÃ©todo de Pago</Label>
+                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Método de Pago</Label>
                 <select 
                   value={metodoPago}
                   onChange={e => setMetodoPago(e.target.value)}
@@ -149,7 +149,7 @@ export default function AccountsPayablePage() {
                 >
                    <option value="efectivo">Efectivo (Caja)</option>
                    <option value="transferencia">Transferencia Bancaria</option>
-                   <option value="tarjeta">Tarjeta DÃ©bito/CrÃ©dito</option>
+                   <option value="tarjeta">Tarjeta Débito/Crédito</option>
                 </select>
               </div>
 
@@ -173,7 +173,7 @@ export default function AccountsPayablePage() {
                 </div>
                 <div>
                     <h2 className="text-2xl font-black text-slate-800 tracking-tight text-base font-black">Cuentas por Pagar</h2>
-                    <p className="text-sm text-slate-500 font-medium font-bold">CrÃ©ditos de mercancÃ­a pendientes con proveedores.</p>
+                    <p className="text-sm text-slate-500 font-medium font-bold">Créditos de mercancía pendientes con proveedores.</p>
                 </div>
             </div>
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -202,7 +202,7 @@ export default function AccountsPayablePage() {
                         <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Vencimiento</TableHead>
                         <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Estado</TableHead>
                         <TableHead className="text-right font-black text-slate-400 uppercase text-[10px] tracking-widest pr-8">Total Pendiente</TableHead>
-                        <TableHead className="text-center font-black text-slate-400 uppercase text-[10px] tracking-widest pr-4">AcciÃ³n</TableHead>
+                        <TableHead className="text-center font-black text-slate-400 uppercase text-[10px] tracking-widest pr-4">Acción</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -181,7 +181,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
         {/* COLUMNA IZQUIERDA: BASICS & PRICE (8 cols) */}
         <div className="lg:col-span-8 space-y-4">
           
-          {/* SECCIÃ“N: IDENTIFICACIÃ“N (Bento Cell) */}
+          {/* SECCIÓN: IDENTIFICACIÓN (Bento Cell) */}
           <div className="bg-slate-50/50 p-5 rounded-[1.5rem] border border-slate-100 space-y-3">
             <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
               <Sparkles className="w-5 h-5 text-emerald-500" /> Identidad del Producto
@@ -189,7 +189,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-3 border-b border-slate-100">
                <div className="space-y-1">
-                 <Label className="font-black text-slate-700 ml-1 text-sm flex items-center gap-1">Tipo de Ã­tem <Info className="w-3 h-3 text-slate-300"/></Label>
+                 <Label className="font-black text-slate-700 ml-1 text-sm flex items-center gap-1">Tipo de ítem <Info className="w-3 h-3 text-slate-300"/></Label>
                  <div className="flex bg-slate-100 p-1 rounded-xl">
                    {['Producto', 'Servicio', 'Combo'].map(t => (
                      <button
@@ -240,7 +240,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
               <Label className="font-black text-slate-700 ml-1 text-sm">Nombre Comercial</Label>
               <Input 
                 {...register("nombre")} 
-                placeholder="Ej. ColÃ¡geno Hidrolizado + Vitamina C" 
+                placeholder="Ej. Colágeno Hidrolizado + Vitamina C" 
                 autoComplete="off"
                 autoCorrect="off"
                 className="h-12 border-slate-200 text-xl font-bold bg-white rounded-xl focus:ring-emerald-500 shadow-sm" 
@@ -257,20 +257,20 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="font-black text-slate-700 ml-1 text-sm">CÃ³digo de Barras</Label>
+                <Label className="font-black text-slate-700 ml-1 text-sm">Código de Barras</Label>
                 <Input {...register("codigo_barras")} placeholder="000000000000" inputMode="numeric" autoComplete="off" onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }} className="h-11 border-slate-200 bg-white rounded-xl text-base font-bold text-slate-600" />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <Label className="font-black text-slate-700 ml-1 text-sm">CategorÃ­a Maestro</Label>
+                <Label className="font-black text-slate-700 ml-1 text-sm">Categoría Maestro</Label>
                 <Select 
                   onValueChange={(val: string | null) => setValue("categoria_id", val || "", { shouldDirty: true })} 
                   value={watch("categoria_id") || ""}
                 >
                   <SelectTrigger className="h-11 border-slate-200 bg-white rounded-xl text-base font-bold text-slate-700">
-                    <SelectValue placeholder="Seleccionar categorÃ­a">
+                    <SelectValue placeholder="Seleccionar categoría">
                       {watch("categoria_id") && categories.find((c: any) => c.id === watch("categoria_id"))?.nombre}
                     </SelectValue>
                   </SelectTrigger>
@@ -306,13 +306,13 @@ export function ProductForm({ product, onSave, onCancel }: any) {
               </div>
               <div className="flex items-end pb-2">
                 <p className="text-[10px] text-slate-400 font-bold uppercase leading-tight italic">
-                  Opcional. El sistema notificarÃ¡ cuando el producto estÃ© prÃ³ximo a vencer.
+                  Opcional. El sistema notificará cuando el producto esté próximo a vencer.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* SECCIÃ“N: ESTRATEGIA DE PRECIOS (Bento Cell) */}
+          {/* SECCIÓN: ESTRATEGIA DE PRECIOS (Bento Cell) */}
           <div className="bg-emerald-50/30 p-5 rounded-[1.5rem] border border-emerald-100 shadow-sm space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="text-[11px] font-black text-emerald-700 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -390,6 +390,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                   <Input 
                     type="number" 
                     inputMode="decimal"
+                    step="any"
                     autoComplete="off"
                     onFocus={(e) => e.target.select()}
                     {...register("margen_ganancia")}
@@ -405,13 +406,14 @@ export function ProductForm({ product, onSave, onCancel }: any) {
               )}>
                 <div className="flex items-center justify-between">
                   <Label className="font-black text-slate-700 text-sm">Precio Venta (Base)</Label>
-                  <Badge variant="outline" className="text-[9px] bg-emerald-600 text-white border-none font-bold">PÃšBLICO</Badge>
+                  <Badge variant="outline" className="text-[9px] bg-emerald-600 text-white border-none font-bold">PÚBLICO</Badge>
                 </div>
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-emerald-600 font-bold text-xl">$</span>
                   <Input 
                     type="number" 
-                    inputMode="numeric"
+                    inputMode="decimal"
+                    step="any"
                     autoComplete="off"
                     onFocus={(e) => e.target.select()}
                     {...register("precio_venta")} 
@@ -457,7 +459,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                  </div>
                  <div className="max-w-xs">
                     <p className="text-[10px] text-slate-400 font-bold uppercase leading-snug tracking-tight">
-                      Este porcentaje se aplicarÃ¡ automÃ¡ticamente al aÃ±adir el producto al carrito en el POS.
+                      Este porcentaje se aplicará automáticamente al añadir el producto al carrito en el POS.
                     </p>
                  </div>
               </div>
@@ -465,13 +467,14 @@ export function ProductForm({ product, onSave, onCancel }: any) {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-t border-emerald-50 pt-3">
                  <div className="flex-1 space-y-1">
                     <Label className="font-black text-rose-700 text-sm flex items-center gap-2">
-                      <ArrowRightLeft className="w-4 h-4 text-rose-500" /> Venta MÃ­nima Autorizada (Piso)
+                      <ArrowRightLeft className="w-4 h-4 text-rose-500" /> Venta Mínima Autorizada (Piso)
                     </Label>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-rose-400 font-bold text-lg">$</span>
                       <Input 
                         type="number" 
-                        inputMode="numeric"
+                        inputMode="decimal"
+                        step="any"
                         autoComplete="off"
                         onFocus={(e) => e.target.select()}
                         {...register("precio_minimo")} 
@@ -482,7 +485,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                  </div>
                  <div className="max-w-xs">
                     <p className="text-[10px] text-slate-400 font-bold uppercase leading-snug tracking-tight">
-                      El sistema impedirÃ¡ que este producto se venda por debajo de este valor, incluso con descuentos.
+                      El sistema impedirá que este producto se venda por debajo de este valor, incluso con descuentos.
                     </p>
                  </div>
               </div>
@@ -493,7 +496,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
         {/* COLUMNA DERECHA: CONFIG & IA (4 cols) */}
         <div className="lg:col-span-4 space-y-4">
           
-          {/* SECCIÃ“N: ESTRUCTURA (Bento Cell) */}
+          {/* SECCIÓN: ESTRUCTURA (Bento Cell) */}
           <div className={cn(
             "p-5 rounded-[1.5rem] border transition-all space-y-3 flex flex-col justify-between h-fit",
             esFraccionado ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-100"
@@ -531,31 +534,31 @@ export function ProductForm({ product, onSave, onCancel }: any) {
                           />
                           <Layers className="w-5 h-5 text-amber-300 absolute right-3 top-3" />
                         </div>
-                        <p className="text-[10px] text-amber-600 font-bold uppercase tracking-tighter">Define cuÃ¡ntas unidades de venta tiene este envase.</p>
+                        <p className="text-[10px] text-amber-600 font-bold uppercase tracking-tighter">Define cuántas unidades de venta tiene este envase.</p>
                      </div>
                   </div>
                )}
              </div>
           </div>
 
-          {/* SECCIÃ“N: IA KNOWLEDGE (Bento Cell) */}
+          {/* SECCIÓN: IA KNOWLEDGE (Bento Cell) */}
           <div className="bg-violet-50/30 p-5 rounded-[1.5rem] border border-violet-100 space-y-3">
             <h3 className="text-[11px] font-black text-violet-700 uppercase tracking-[0.2em] flex items-center gap-2">
-               <BrainCircuit className="w-5 h-5" /> SabidurÃ­a Naturista
+               <BrainCircuit className="w-5 h-5" /> Sabiduría Naturista
             </h3>
             
             <div className="space-y-3">
               <div className="space-y-1">
                 <Label className="font-black text-slate-700 text-[11px] uppercase ml-1 text-sm">Beneficios</Label>
-                <Textarea {...register("beneficios")} placeholder="Ej. Aumenta la energÃ­a y reduce estrÃ©s" className="min-h-[44px] border-violet-100 bg-white rounded-xl text-sm leading-relaxed focus:ring-violet-500 resize-none shadow-sm font-medium text-slate-600" />
+                <Textarea {...register("beneficios")} placeholder="Ej. Aumenta la energía y reduce estrés" className="min-h-[44px] border-violet-100 bg-white rounded-xl text-sm leading-relaxed focus:ring-violet-500 resize-none shadow-sm font-medium text-slate-600" />
               </div>
               <div className="space-y-1">
-                <Label className="font-black text-slate-700 text-[11px] uppercase ml-1 text-sm">SÃ­ntomas</Label>
+                <Label className="font-black text-slate-700 text-[11px] uppercase ml-1 text-sm">Síntomas</Label>
                 <Textarea {...register("sintomas_alivia")} placeholder="Ej. Ansiedad, Insomnio..." className="min-h-[44px] border-violet-100 bg-white rounded-xl text-sm leading-relaxed focus:ring-violet-500 resize-none shadow-sm font-medium text-slate-600" />
               </div>
               <div className="space-y-1">
-                <Label className="font-black text-slate-700 text-[11px] uppercase ml-1 text-sm">ComposiciÃ³n</Label>
-                <Textarea {...register("ingredientes")} placeholder="Ej. Extracto de raÃ­z 5%, ..." className="min-h-[44px] border-violet-100 bg-white rounded-xl text-sm leading-relaxed focus:ring-violet-500 resize-none shadow-sm font-medium text-slate-600" />
+                <Label className="font-black text-slate-700 text-[11px] uppercase ml-1 text-sm">Composición</Label>
+                <Textarea {...register("ingredientes")} placeholder="Ej. Extracto de raíz 5%, ..." className="min-h-[44px] border-violet-100 bg-white rounded-xl text-sm leading-relaxed focus:ring-violet-500 resize-none shadow-sm font-medium text-slate-600" />
               </div>
             </div>
           </div>
@@ -577,7 +580,3 @@ export function ProductForm({ product, onSave, onCancel }: any) {
     </form>
   );
 }
-
-
-
-
