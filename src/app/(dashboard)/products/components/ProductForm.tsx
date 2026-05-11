@@ -145,7 +145,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
         bodega: formData.bodega || "Principal",
         impuesto_porcentaje: Number(formData.impuesto_porcentaje) || 0,
         fecha_vencimiento: formData.fecha_vencimiento || null,
-        estado: estado,
+        activo: estado === 'activo',
         updated_at: new Date().toISOString(),
       };
 
