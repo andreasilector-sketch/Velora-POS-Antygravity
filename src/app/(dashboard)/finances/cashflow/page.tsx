@@ -60,6 +60,7 @@ export default function CashFlowPage() {
         .from("ingresos_inventario" as any) as any)
         .select("total")
         .eq("tenant_id", tenant?.id as string)
+        .eq("estado", "completado")
         .gte("fecha", startOfMonth.toISOString());
     
     const totalCostos = (compras || []).reduce((acc: number, c: any) => acc + Number(c.total), 0);
