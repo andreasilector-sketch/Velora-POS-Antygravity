@@ -1,4 +1,4 @@
-# Velora POS - Master Ledger (Phase 2: SaaS Refactor)
+# Velora POS - Master Ledger (Phase 3: Optimization & Polish)
 
 ## 🗺️ Master Roadmap
 
@@ -9,25 +9,28 @@
 - [x] Inventario Fraccionado (Padre/Hijo) & IA Fields
 - [x] Arqueo de Caja y Calculadora de Denominaciones
 - [x] Refactor UI/UX (Prohibición de Azul, Miles Separators)
-- [x] **Motor de Promociones & Rule Engine**
-- [x] **Generador de Reportes PDF Premium**
+- [x] Motor de Promociones & Rule Engine
+- [x] Generador de Reportes PDF Premium
+- [ ] **Finanzas y Egresos: Pago de cuentas, y Balance con Egresos**
+- [ ] **Clientes: Historial, Ajuste Cartera, Exportar**
+- [ ] **POS y Caja: Pago mixto corrector, Scroll reportes, Exportar Ventas**
+- [ ] **Mercancía: Código barras, Gestión cargas, Guardado borrador**
+- [ ] **Seguridad: Backup Integral**
 - [ ] Auditoría de Seguridad & RLS Policies (Final)
 
 ## 📍 Current Trajectory
 
-- **Paso activo:** [Verified & Polished] 🪐 Configuración de **Auto-GitHub Sync Pipeline** utilizando PAT heredado. Implementación de IA Naturista Info Panel en GlobalScanner. Auditoría de tipos TS completada.
+- **Paso activo:** [Optimization] Ajustes y Optimización solicitados por el usuario.
 
 ## 👥 Squad Status
 
 | Agent | Task | Status |
 |---|---|---|
-| Senior Product Engineer (Antigravity) | [SaaS] DB & Auth Hook | DONE |
-| Senior Product Engineer (Antigravity) | [UI] Brand Alignment (No Blue) | DONE |
-| Senior Product Engineer (Antigravity) | [LOGIC] Advanced POS & Payments | DONE |
-| Senior Product Engineer (Antigravity) | [CASH] Arqueo & Liquidación | DONE |
-| Senior Product Engineer (Antigravity) | [CONF] Dashboard & Settings | DONE |
-| Senior Product Engineer (Antigravity) | [INV] Expiration Date implementation | DONE |
-| Senior Product Engineer (Antigravity) | [OPS] Auto-GitHub Sync Configuration | DONE |
+| Senior Product Engineer (Antigravity) | [FINANZAS] Cuentas por pagar & Balance | PENDING |
+| Senior Product Engineer (Antigravity) | [CLIENTES] Perfil Historial, Ajuste Cartera, Exportar | PENDING |
+| Senior Product Engineer (Antigravity) | [POS] Corrección pago mixto, scroll reportes, export | PENDING |
+| Senior Product Engineer (Antigravity) | [MERCANCIA] Buscador barras, Gestión cargas, Borrador | PENDING |
+| Senior Product Engineer (Antigravity) | [SECURITY] Backup Integral | PENDING |
 
 ## 📝 Audit Report (/audit)
 - **Visual Score:** 9.6/10 (Aesthetic Emerald / Slate)
@@ -36,4 +39,4 @@
 
 ✅ **Visual Wins:** Premium dashboard textures, kinetics in counts, absolute zero blue.
 ❌ **Critical Fails:** None.
-🐛 **Bugs:** Minor RBAC placeholders in Settings (intentional for next phase).
+🐛 **Bugs:** None yet.

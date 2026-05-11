@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,9 +16,17 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { formatCurrency, cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function AccountsPayablePage() {
-  const { tenant } = useUserProfile();
+  const { tenant, profile } = useUserProfile();
   const [deudas, setDeudas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -42,6 +50,67 @@ export default function AccountsPayablePage() {
     setLoading(false);
   };
 
+  const [paymentModal, setPaymentModal] = useState<{isOpen: boolean, deuda: any}>({isOpen: false, deuda: null});
+  const [metodoPago, setMetodoPago] = useState("efectivo");
+  const [isPaying, setIsPaying] = useState(false);
+
+  const handlePagar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { deuda } = paymentModal;
+    if (!deuda || !profile) return;
+    setIsPaying(true);
+
+    try {
+      // 1. Update ingresos_inventario state (change to contado to remove from payable)
+      const { error: errUpdate } = await (supabase.from("ingresos_inventario" as any) as any)
+        .update({ tipo_pago: "contado", metodo_pago: metodoPago })
+        .eq("id", deuda.id);
+      
+      if (errUpdate) throw errUpdate;
+
+      // 2. Insert Gasto
+      const { error: errGasto } = await (supabase.from("gastos" as any) as any)
+        .insert({
+          tenant_id: tenant?.id,
+          categoria: "Proveedores",
+          descripcion: `Pago Factura ${deuda.numero_factura} - Proveedor ${deuda.proveedor}`,
+          monto: deuda.total,
+          metodo_pago: metodoPago,
+          fecha: new Date().toISOString()
+        });
+      
+      if (errGasto) throw errGasto;
+
+      // 3. If Cash, insert into caja_movimientos
+      if (metodoPago === "efectivo" && profile?.id) {
+        // Find active session
+        const { data: session } = await (supabase.from("sesiones_caja" as any) as any)
+          .select("id")
+          .eq("usuario_id", profile.id)
+          .eq("estado", "abierta")
+          .maybeSingle();
+
+        if (session) {
+          await (supabase.from("caja_movimientos" as any) as any).insert({
+            sesion_id: session.id,
+            tipo: "egreso",
+            monto: deuda.total,
+            metodo_pago: "efectivo",
+            descripcion: `Pago Factura ${deuda.numero_factura} (${deuda.proveedor})`
+          });
+        }
+      }
+
+      alert("Pago registrado correctamente.");
+      setPaymentModal({isOpen: false, deuda: null});
+      fetchDeudas();
+    } catch (err: any) {
+      alert("Error al registrar pago: " + err.message);
+    } finally {
+      setIsPaying(false);
+    }
+  };
+
   const getDueDate = (fecha: string, dias: number) => {
     const d = new Date(fecha);
     d.setDate(d.getDate() + dias);
@@ -58,6 +127,43 @@ export default function AccountsPayablePage() {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 h-full flex flex-col overflow-hidden font-sans">
       
+      <Dialog open={paymentModal.isOpen} onOpenChange={(open) => setPaymentModal(prev => ({...prev, isOpen: open}))}>
+        <DialogContent className="max-w-md bg-white border-slate-100 rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-slate-800">Pagar Cuenta</DialogTitle>
+          </DialogHeader>
+          {paymentModal.deuda && (
+            <form onSubmit={handlePagar} className="space-y-4 mt-4">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-sm font-bold text-slate-500">Proveedor: <span className="text-slate-800">{paymentModal.deuda.proveedor}</span></p>
+                <p className="text-sm font-bold text-slate-500">Factura: <span className="text-slate-800">{paymentModal.deuda.numero_factura}</span></p>
+                <p className="text-lg font-black text-slate-900 mt-2">Monto a Pagar: <span className="text-indigo-600">{formatCurrency(paymentModal.deuda.total)}</span></p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">MÃ©todo de Pago</Label>
+                <select 
+                  value={metodoPago}
+                  onChange={e => setMetodoPago(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 font-bold text-slate-700"
+                >
+                   <option value="efectivo">Efectivo (Caja)</option>
+                   <option value="transferencia">Transferencia Bancaria</option>
+                   <option value="tarjeta">Tarjeta DÃ©bito/CrÃ©dito</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setPaymentModal({isOpen: false, deuda: null})} className="flex-1 rounded-xl">Cancelar</Button>
+                <Button type="submit" disabled={isPaying} className="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black">
+                  {isPaying ? "Procesando..." : "Registrar Pago"}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <div className="p-8 border-b border-slate-100 bg-slate-50/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -67,7 +173,7 @@ export default function AccountsPayablePage() {
                 </div>
                 <div>
                     <h2 className="text-2xl font-black text-slate-800 tracking-tight text-base font-black">Cuentas por Pagar</h2>
-                    <p className="text-sm text-slate-500 font-medium font-bold">Créditos de mercancía pendientes con proveedores.</p>
+                    <p className="text-sm text-slate-500 font-medium font-bold">CrÃ©ditos de mercancÃ­a pendientes con proveedores.</p>
                 </div>
             </div>
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -96,6 +202,7 @@ export default function AccountsPayablePage() {
                         <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Vencimiento</TableHead>
                         <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Estado</TableHead>
                         <TableHead className="text-right font-black text-slate-400 uppercase text-[10px] tracking-widest pr-8">Total Pendiente</TableHead>
+                        <TableHead className="text-center font-black text-slate-400 uppercase text-[10px] tracking-widest pr-4">AcciÃ³n</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -141,6 +248,9 @@ export default function AccountsPayablePage() {
                                 </TableCell>
                                 <TableCell className="text-right pr-8">
                                     <span className="font-black text-slate-900 text-base">{formatCurrency(d.total)}</span>
+                                </TableCell>
+                                <TableCell className="text-center pr-4">
+                                    <Button size="sm" onClick={() => setPaymentModal({isOpen: true, deuda: d})} className="bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-lg">Pagar</Button>
                                 </TableCell>
                             </TableRow>
                         );

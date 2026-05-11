@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -118,7 +118,7 @@ function AdvancedPOSPage() {
   const [lastVenta, setLastVenta] = useState<any>(null);
   const [selectedProductInfo, setSelectedProductInfo] = useState<Product | null>(null);
 
-  // Safe print handler – works with React 19 without react-to-print
+  // Safe print handler â€“ works with React 19 without react-to-print
   const handlePrint = useCallback((refToPrint?: React.RefObject<HTMLDivElement>) => {
     const targetRef = refToPrint || receiptRef;
     if (!targetRef.current) return;
@@ -400,7 +400,7 @@ function AdvancedPOSPage() {
             .eq("id", selectedClient.id);
         }
 
-        // --- Lógica de Puntos (1 punto por cada $1.000) ---
+        // --- LÃ³gica de Puntos (1 punto por cada $1.000) ---
         const earnedPoints = Math.floor(total / 1000);
         if (earnedPoints > 0) {
            await (supabase.from("clientes" as any) as any)
@@ -411,7 +411,7 @@ function AdvancedPOSPage() {
         }
       }
 
-      // 4. Actualizar Stock + Registrar Movimiento de Inventario (transacción atómica en servidor)
+      // 4. Actualizar Stock + Registrar Movimiento de Inventario (transacciÃ³n atÃ³mica en servidor)
       for (const item of cart) {
         const { error: stockErr } = await supabase.rpc("process_sale_stock" as any, {
           p_tenant_id:   tenant.id,
@@ -479,7 +479,7 @@ function AdvancedPOSPage() {
       setIsPaymentOpen(false);
       
     } catch (err: any) {
-      alert("Error Crítico al Procesar: " + err.message);
+      alert("Error CrÃ­tico al Procesar: " + err.message);
     } finally {
       setIsProcessing(false);
     }
@@ -498,7 +498,7 @@ function AdvancedPOSPage() {
 
   return (
     <div className="flex flex-col xl:flex-row h-full gap-3 xl:gap-4 font-sans">
-      {/* SECCIÓN IZQUIERDA: PRODUCTOS */}
+      {/* SECCIÃ“N IZQUIERDA: PRODUCTOS */}
       <div className="flex-1 flex flex-col min-w-0 gap-3 h-[50vh] xl:h-auto">
         <div className="flex gap-3">
            <div className="relative flex-1 group">
@@ -536,7 +536,7 @@ function AdvancedPOSPage() {
                   className="cursor-pointer border-slate-200 hover:border-emerald-500 hover:shadow-md transition-all active:scale-95 group overflow-hidden bg-white relative"
                 >
                   <div 
-                    className="absolute top-2 right-2 z-10 p-2 bg-emerald-50 text-emerald-600 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-600 hover:text-white"
+                    className="absolute top-2 right-2 z-10 p-2 bg-emerald-50 text-emerald-600 rounded-lg  transition-all hover:bg-emerald-600 hover:text-white"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedProductInfo(p);
@@ -583,20 +583,20 @@ function AdvancedPOSPage() {
                    <BrainCircuit className="absolute inset-0 m-auto w-10 h-10 text-emerald-600" />
                 </div>
                 <h3 className="text-2xl font-black tracking-tight text-slate-800">IA Inteligencia Saludable</h3>
-                <p className="text-sm font-bold text-slate-500 mt-2 max-w-xs">Escribe un síntoma ("dolor"), un beneficio ("energía") o escanea un producto para prescribir.</p>
+                <p className="text-sm font-bold text-slate-500 mt-2 max-w-xs">Escribe un sÃ­ntoma ("dolor"), un beneficio ("energÃ­a") o escanea un producto para prescribir.</p>
               </div>
             )}
             {searchTerm && filteredProducts.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 opacity-50">
                 <Package className="w-16 h-16 mb-4 text-slate-300" />
                 <h3 className="text-xl font-black tracking-tight text-slate-600">No hay resultados</h3>
-                <p className="text-sm font-bold text-slate-400 mt-1">Busca por nombre, SKU, beneficio o síntoma.</p>
+                <p className="text-sm font-bold text-slate-400 mt-1">Busca por nombre, SKU, beneficio o sÃ­ntoma.</p>
               </div>
             )}
         </ScrollArea>
       </div>
 
-      {/* SECCIÓN DERECHA: CARRITO Y ACCIONES */}
+      {/* SECCIÃ“N DERECHA: CARRITO Y ACCIONES */}
       <div className="w-full xl:w-[480px] 2xl:w-[550px] flex flex-col gap-3 xl:gap-4 shrink-0 h-[50vh] xl:h-[calc(100vh-5rem)] xl:sticky xl:top-0 self-start">
         <Card className="flex-1 flex flex-col border-slate-200 shadow-xl rounded-3xl overflow-hidden bg-white min-h-0">
           <div className="p-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between shrink-0">
@@ -637,7 +637,7 @@ function AdvancedPOSPage() {
                                        onClick={() => applyFloorPrice(item.id)}
                                        className={cn("px-1.5 py-0.5 text-[9px] font-black rounded border transition-colors uppercase whitespace-nowrap", item.isFloorPriceApplied ? "bg-rose-600 text-white border-rose-600" : "bg-rose-50 text-rose-500 border-rose-100 hover:bg-rose-600 hover:text-white")}
                                     >
-                                       MÍN: {formatCurrency(item.precio_minimo)}
+                                       MÃN: {formatCurrency(item.precio_minimo)}
                                     </button>
                                  )}
                                  <div className="flex items-center gap-1">
@@ -669,7 +669,7 @@ function AdvancedPOSPage() {
                      <div className="p-8 bg-slate-100 rounded-full mb-4 group-hover:bg-emerald-50 transition-colors">
                         <ShoppingCart className="w-16 h-16 text-slate-400 group-hover:text-emerald-500 transition-colors" />
                      </div>
-                     <p className="font-black text-slate-400 italic text-sm">Carro Vacío</p>
+                     <p className="font-black text-slate-400 italic text-sm">Carro VacÃ­o</p>
                   </div>
                )}
             </div>
@@ -737,7 +737,7 @@ function AdvancedPOSPage() {
                    : "bg-slate-900 hover:bg-slate-800 text-white"
                )}
             >
-               {cart.length === 0 ? "Carro Vacío" : activeSession ? "Pagar Ahora" : "Abrir Caja"}
+               {cart.length === 0 ? "Carro VacÃ­o" : activeSession ? "Pagar Ahora" : "Abrir Caja"}
             </Button>
           </div>
         </Card>
@@ -755,13 +755,13 @@ function AdvancedPOSPage() {
                   </div>
                   <div>
                      <DialogTitle className="text-2xl font-black text-white leading-tight">Finalizar Venta</DialogTitle>
-                     <p className="text-emerald-100 font-bold text-base uppercase opacity-70 tracking-widest mt-0.5">Gestión de Cobro Segura</p>
+                     <p className="text-emerald-100 font-bold text-base uppercase opacity-70 tracking-widest mt-0.5">GestiÃ³n de Cobro Segura</p>
                   </div>
                </div>
                <div className="relative z-10 flex gap-10 items-center">
                   <div className="h-10 w-[1px] bg-white/10" />
                   <div className="text-right">
-                     <p className="font-black opacity-60 uppercase tracking-[0.2em] text-xs mb-1">TOTAL TRANSACCIÓN</p>
+                     <p className="font-black opacity-60 uppercase tracking-[0.2em] text-xs mb-1">TOTAL TRANSACCIÃ“N</p>
                      <p className="text-4xl font-black tracking-tighter leading-none">{formatCurrency(total)}</p>
                   </div>
                </div>
@@ -769,7 +769,7 @@ function AdvancedPOSPage() {
             </div>
 
             <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
-               {/* SIDEBAR IZQUIERDO: CONFIGURACIÓN (280px) */}
+               {/* SIDEBAR IZQUIERDO: CONFIGURACIÃ“N (280px) */}
                <div className="w-full lg:w-72 bg-slate-50 border-r border-slate-100 p-6 space-y-6 flex flex-col shadow-[inset_-1px_0_0_0_rgba(0,0,0,0.03)] overflow-y-auto">
                   <div className="space-y-3">
                      <Label className="font-black text-slate-400 uppercase text-base tracking-[0.2em] ml-1">Modo de Pago</Label>
@@ -779,8 +779,8 @@ function AdvancedPOSPage() {
                            value={paymentType}
                            onChange={(e) => setPaymentType(e.target.value as any)}
                         >
-                           <option value="single">💳 Pago Único</option>
-                           <option value="mixed">🧩 Pago Mixto</option>
+                           <option value="single">ðŸ’³ Pago Ãšnico</option>
+                           <option value="mixed">ðŸ§© Pago Mixto</option>
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-emerald-500 transition-colors">
                            <Plus className="w-4 h-4 rotate-45" />
@@ -790,7 +790,7 @@ function AdvancedPOSPage() {
 
                   <div className="space-y-6 flex-1">
                      <div className="space-y-3">
-                        <Label className="font-black text-slate-400 uppercase text-base tracking-[0.2em] ml-1">Seleccionar Método</Label>
+                        <Label className="font-black text-slate-400 uppercase text-base tracking-[0.2em] ml-1">Seleccionar MÃ©todo</Label>
                         <div className="grid grid-cols-1 gap-3">
                            <button 
                               onClick={() => setSelectedMethod("efectivo")}
@@ -828,7 +828,7 @@ function AdvancedPOSPage() {
                                   !selectedClient && "opacity-30 cursor-not-allowed border-dashed"
                                )}
                             >
-                               <Wallet className="w-5 h-5" /> Fiado/Crédito
+                               <Wallet className="w-5 h-5" /> Fiado/CrÃ©dito
                             </button>
                             <button 
                                disabled={!selectedClient || (selectedClient.saldo_a_favor || 0) <= 0}
@@ -865,7 +865,7 @@ function AdvancedPOSPage() {
                                  <Sparkles className="w-5 h-5 text-emerald-400 animate-pulse" />
                               </div>
                               <Button 
-                                 onClick={() => alert("Módulo de Redención: Próximamente")}
+                                 onClick={() => alert("MÃ³dulo de RedenciÃ³n: PrÃ³ximamente")}
                                  className="w-full h-10 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl"
                               >
                                  Redimir Puntos
@@ -879,7 +879,7 @@ function AdvancedPOSPage() {
                   )}
                </div>
 
-               {/* ÁREA PRINCIPAL: ACCIÓN DINÁMICA */}
+               {/* ÃREA PRINCIPAL: ACCIÃ“N DINÃMICA */}
                <div className="flex-1 p-8 bg-white flex flex-col overflow-y-auto">
                   <Tabs value={paymentType} onValueChange={(v:any) => setPaymentType(v)} className="w-full flex-1 flex flex-col">
                      {/* El Listado desaparece de aqui y se maneja por el select */}
@@ -916,7 +916,7 @@ function AdvancedPOSPage() {
                                        <div>
                                           <div className="flex items-center gap-3 mb-1">
                                              <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                                             <p className="text-emerald-400 font-black text-base uppercase tracking-[0.2em]">Cálculo de Cambio</p>
+                                             <p className="text-emerald-400 font-black text-base uppercase tracking-[0.2em]">CÃ¡lculo de Cambio</p>
                                           </div>
                                           <p className="text-white/60 font-medium text-xs italic">Monto exacto a devolver</p>
                                        </div>
@@ -931,7 +931,7 @@ function AdvancedPOSPage() {
                            {selectedMethod === "transferencia" && (
                               <div className="space-y-10">
                                  <div className="text-center space-y-2">
-                                    <h3 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">Transferencia Electrónica</h3>
+                                    <h3 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">Transferencia ElectrÃ³nica</h3>
                                     <p className="text-emerald-600 font-black text-xs uppercase tracking-widest opacity-60">Selecciona el banco destino para visualizar el comprobante</p>
                                  </div>
                                  
@@ -970,9 +970,9 @@ function AdvancedPOSPage() {
                                     <div className="absolute inset-0 bg-emerald-500/10 rounded-full animate-ping duration-[2000ms]" />
                                     {selectedMethod === 'tarjeta' ? <CreditCard className="w-12 h-12 text-slate-400 group-hover:text-emerald-500 transition-colors relative z-10" /> : <ShieldCheck className="w-10 h-10 text-emerald-500 relative z-10" />}
                                  </div>
-                                 <h4 className="font-black text-slate-800 text-2xl tracking-tighter mb-2 text-center uppercase">Registro de {selectedMethod === 'tarjeta' ? 'Tarjeta' : 'Crédito'}</h4>
+                                 <h4 className="font-black text-slate-800 text-2xl tracking-tighter mb-2 text-center uppercase">Registro de {selectedMethod === 'tarjeta' ? 'Tarjeta' : 'CrÃ©dito'}</h4>
                                  <p className="text-slate-500 font-bold text-center text-sm max-w-sm px-4 leading-relaxed opacity-60">
-                                    {selectedMethod === 'tarjeta' ? 'Pasa la tarjeta por el datáfono externo y confirma el éxito de la operación.' : 'El monto se cargará automáticamente al cupo disponible del cliente.'}
+                                    {selectedMethod === 'tarjeta' ? 'Pasa la tarjeta por el datÃ¡fono externo y confirma el Ã©xito de la operaciÃ³n.' : 'El monto se cargarÃ¡ automÃ¡ticamente al cupo disponible del cliente.'}
                                  </p>
                               </div>
                            )}
@@ -987,7 +987,7 @@ function AdvancedPOSPage() {
                                  <span>DEUDA PENDIENTE</span>
                               </p>
                               <p className="text-white/40 font-medium text-[10px] uppercase tracking-wider">
-                                 <span>Total Transacción: {formatCurrency(total)}</span>
+                                 <span>Total TransacciÃ³n: {formatCurrency(total)}</span>
                               </p>
                            </div>
                            <div className="relative z-10 text-right">
@@ -1001,9 +1001,9 @@ function AdvancedPOSPage() {
                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/10 rounded-full blur-[60px]" />
                         </div>
 
-                        {/* CUERPO CENTRAL: DISTRIBUCIÓN 4/8 */}
+                        {/* CUERPO CENTRAL: DISTRIBUCIÃ“N 4/8 */}
                         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 flex-1 min-h-0">
-                           {/* PANEL DE ACCIÓN (ANCHO 5) */}
+                           {/* PANEL DE ACCIÃ“N (ANCHO 5) */}
                            <div className="xl:col-span-5 flex flex-col gap-4">
                               <div className="flex-1 bg-slate-50/50 rounded-[2rem] border-2 border-slate-100 p-8 flex flex-col items-center justify-center gap-6 shadow-inner">
                                  <div className="text-center space-y-2">
@@ -1070,7 +1070,7 @@ function AdvancedPOSPage() {
                                        className="w-full h-16 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl shadow-lg transition-all hover:scale-[1.02] flex items-center justify-center gap-3 text-lg uppercase tracking-tight group"
                                     >
                                        <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform" /> 
-                                       <span>Añadir Pago</span>
+                                       <span>AÃ±adir Pago</span>
                                     </Button>
                                  </div>
                               </div>
@@ -1110,7 +1110,7 @@ function AdvancedPOSPage() {
                                              </div>
                                              <div className="flex items-center gap-4">
                                                 <span className="font-black text-slate-900 text-lg tabular-nums tracking-tighter"><span>{formatCurrency(p.amount)}</span></span>
-                                                <Button size="icon" variant="ghost" onClick={() => setMixedPayments(mixedPayments.filter((_, i) => i !== idx))} className="h-8 w-8 text-rose-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                                                <Button size="icon" variant="ghost" onClick={() => setMixedPayments(mixedPayments.filter((_, i) => i !== idx))} className="h-8 w-8 text-rose-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all ">
                                                    <Trash2 className="w-4 h-4" />
                                                 </Button>
                                              </div>
@@ -1121,7 +1121,7 @@ function AdvancedPOSPage() {
                               ) : (
                                  <div className="flex flex-col items-center justify-center flex-1 opacity-20 py-10">
                                     <Receipt className="w-16 h-16 text-slate-300 mb-4" />
-                                    <p className="text-slate-500 font-bold text-xs uppercase tracking-widest text-center max-w-[200px]">Sin abonos registrados aún</p>
+                                    <p className="text-slate-500 font-bold text-xs uppercase tracking-widest text-center max-w-[200px]">Sin abonos registrados aÃºn</p>
                                  </div>
                               )}
                            </div>
@@ -1156,13 +1156,13 @@ function AdvancedPOSPage() {
          <DialogContent className="max-w-md rounded-2xl">
             <DialogHeader>
                <DialogTitle>Vincular Cliente</DialogTitle>
-               <DialogDescription>Indispensable para crédito/fiado.</DialogDescription>
+               <DialogDescription>Indispensable para crÃ©dito/fiado.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
                <div className="relative">
                   <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                   <Input 
-                     placeholder="Buscar por nombre o cédula..." 
+                     placeholder="Buscar por nombre o cÃ©dula..." 
                      className="pl-10 h-12 rounded-xl text-lg" 
                      autoComplete="off"
                      autoCorrect="off"
@@ -1201,7 +1201,7 @@ function AdvancedPOSPage() {
                      Perfil Integral Cliente
                   </DialogTitle>
                   <DialogDescription className="text-slate-500 font-black text-sm uppercase tracking-widest pl-1">
-                     Fidelización | Créditos | Inteligencia CRM
+                     FidelizaciÃ³n | CrÃ©ditos | Inteligencia CRM
                   </DialogDescription>
                </div>
                <Button variant="ghost" size="icon" onClick={() => setIsNewClientOpen(false)} className="rounded-2xl h-12 w-12 bg-slate-100 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
@@ -1218,7 +1218,7 @@ function AdvancedPOSPage() {
          </DialogContent>
       </Dialog>
 
-      {/* DIALOGO DE ÉXITO */}
+      {/* DIALOGO DE Ã‰XITO */}
       <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
         <DialogContent className="max-w-md rounded-[3rem] border-none shadow-[0_45px_150px_-25px_rgba(16,185,129,0.3)] p-0 overflow-hidden bg-white">
           <div className="flex flex-col items-center text-center">
@@ -1228,7 +1228,7 @@ function AdvancedPOSPage() {
                   <CheckCircle2 className="w-12 h-12 text-white" />
                </div>
                <div className="relative z-10">
-                  <h2 className="text-3xl font-black text-white leading-tight">¡Venta Exitosa!</h2>
+                  <h2 className="text-3xl font-black text-white leading-tight">Â¡Venta Exitosa!</h2>
                   <p className="text-emerald-100 font-bold uppercase text-base tracking-[0.2em] mt-2 opacity-80">Procesado Correctamente</p>
                </div>
                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
@@ -1246,7 +1246,7 @@ function AdvancedPOSPage() {
                         <Sparkles className="w-6 h-6 text-emerald-600" />
                      </div>
                      <div className="text-left">
-                        <p className="text-xs font-black text-emerald-600 uppercase tracking-widest">¡Nuevos Puntos Ganados!</p>
+                        <p className="text-xs font-black text-emerald-600 uppercase tracking-widest">Â¡Nuevos Puntos Ganados!</p>
                         <p className="text-2xl font-black text-emerald-800">+{lastVenta.earnedPoints} Puntos</p>
                         <p className="text-[10px] font-bold text-emerald-500 mt-0.5">Saldo total: {(lastVenta.client.puntos || 0) + lastVenta.earnedPoints} Ptos</p>
                      </div>
@@ -1280,7 +1280,7 @@ function AdvancedPOSPage() {
         </DialogContent>
       </Dialog>
 
-      {/* TICKET OCULTO PARA IMPRESIÓN - Solo se monta si hay una venta activa para reducir huella en el DOM */}
+      {/* TICKET OCULTO PARA IMPRESIÃ“N - Solo se monta si hay una venta activa para reducir huella en el DOM */}
       {isSuccessOpen && (
         <div className="fixed -left-[2000px] opacity-0 pointer-events-none">
            <ReceiptTicket 
@@ -1295,7 +1295,7 @@ function AdvancedPOSPage() {
            />
         </div>
       )}
-      {/* MODAL SABIDURÍA NATURISTA (IA) */}
+      {/* MODAL SABIDURÃA NATURISTA (IA) */}
       <Dialog open={!!selectedProductInfo} onOpenChange={() => setSelectedProductInfo(null)}>
         <DialogContent className="w-[95vw] sm:max-w-[95vw] md:max-w-6xl lg:max-w-7xl max-h-[90vh] pb-0 mb-0 pt-0 mt-0 pr-0 pl-0 rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col">
           <div className="bg-emerald-600 p-6 xl:p-8 text-white relative overflow-hidden shrink-0">
@@ -1305,7 +1305,7 @@ function AdvancedPOSPage() {
                 </div>
                 <div>
                    <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">{selectedProductInfo?.nombre}</h2>
-                   <p className="text-emerald-100 font-bold mt-2 tracking-widest uppercase text-xs opacity-70">Sabiduría Naturista & Propiedades</p>
+                   <p className="text-emerald-100 font-bold mt-2 tracking-widest uppercase text-xs opacity-70">SabidurÃ­a Naturista & Propiedades</p>
                 </div>
              </div>
              <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/30 rounded-full blur-[60px]" />
@@ -1321,7 +1321,7 @@ function AdvancedPOSPage() {
                       </div>
                       <div className="p-5 bg-emerald-50/50 border border-emerald-100 rounded-3xl">
                          <p className="text-slate-700 font-medium leading-relaxed">
-                            {selectedProductInfo?.beneficios || "No se han registrado beneficios específicos para este producto."}
+                            {selectedProductInfo?.beneficios || "No se han registrado beneficios especÃ­ficos para este producto."}
                          </p>
                       </div>
                    </div>
@@ -1329,11 +1329,11 @@ function AdvancedPOSPage() {
                    <div className="space-y-3">
                       <div className="flex items-center gap-2 text-rose-500 mb-1">
                          <AlertTriangle className="w-5 h-5" />
-                         <span className="font-black uppercase text-xs tracking-widest">Síntomas que alivia</span>
+                         <span className="font-black uppercase text-xs tracking-widest">SÃ­ntomas que alivia</span>
                       </div>
                       <div className="p-5 bg-rose-50/50 border border-rose-100 rounded-3xl">
                          <p className="text-slate-700 font-medium leading-relaxed">
-                            {selectedProductInfo?.sintomas_alivia || "No se han detallado los síntomas asociados."}
+                            {selectedProductInfo?.sintomas_alivia || "No se han detallado los sÃ­ntomas asociados."}
                          </p>
                       </div>
                    </div>
@@ -1342,11 +1342,11 @@ function AdvancedPOSPage() {
                 <div className="space-y-3">
                    <div className="flex items-center gap-2 text-amber-600 mb-1">
                       <Boxes className="w-5 h-5" />
-                      <span className="font-black uppercase text-xs tracking-widest">Ingredientes / Composición</span>
+                      <span className="font-black uppercase text-xs tracking-widest">Ingredientes / ComposiciÃ³n</span>
                    </div>
                    <div className="p-6 bg-slate-50 border border-slate-100 rounded-[2.5rem]">
                       <p className="text-slate-600 font-bold leading-relaxed italic">
-                         {selectedProductInfo?.ingredientes || "Información de composición pendiente de registro."}
+                         {selectedProductInfo?.ingredientes || "InformaciÃ³n de composiciÃ³n pendiente de registro."}
                       </p>
                    </div>
                 </div>
@@ -1364,7 +1364,7 @@ function AdvancedPOSPage() {
                          if (selectedProductInfo) {
                            addToCart(selectedProductInfo);
                            setSelectedProductInfo(null);
-                           // Desplazar al carrito en móviles
+                           // Desplazar al carrito en mÃ³viles
                            if (typeof window !== 'undefined' && window.innerWidth < 1280) {
                               const cartEl = document.querySelector('.xl\\:sticky');
                               cartEl?.scrollIntoView({ behavior: 'smooth' });

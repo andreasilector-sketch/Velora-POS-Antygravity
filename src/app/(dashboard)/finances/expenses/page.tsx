@@ -44,7 +44,7 @@ const METODOS = [
 ];
 
 export default function ExpensesPage() {
-  const { tenant } = useUserProfile();
+  const { tenant, profile } = useUserProfile();
   const [gastos, setGastos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -94,6 +94,24 @@ export default function ExpensesPage() {
         });
 
       if (error) throw error;
+
+      if (metodoPago === "efectivo" && profile?.id) {
+        const { data: session } = await (supabase.from("sesiones_caja" as any) as any)
+          .select("id")
+          .eq("usuario_id", profile.id)
+          .eq("estado", "abierta")
+          .maybeSingle();
+
+        if (session) {
+          await (supabase.from("caja_movimientos" as any) as any).insert({
+            sesion_id: session.id,
+            tipo: "egreso",
+            monto: monto,
+            metodo_pago: "efectivo",
+            descripcion: `Gasto: ${categoria} - ${descripcion}`
+          });
+        }
+      }
 
       setIsDialogOpen(false);
       setDescripcion("");

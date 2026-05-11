@@ -440,7 +440,7 @@ export default function CajaPage() {
                       <p className="text-slate-300 text-sm font-medium">Las ventas del POS se reflejarán aquí automáticamente.</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-50">
+                    <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto">
                       {movements.map((move: any) => {
                         const isPositive = move.tipo === "venta" || move.tipo === "ingreso";
                         return (

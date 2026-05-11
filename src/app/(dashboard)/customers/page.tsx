@@ -44,6 +44,10 @@ export default function CustomersPage() {
   const [payOffAmount, setPayOffAmount] = useState("");
   const [isPaying, setIsPaying] = useState(false);
 
+  // History
+  const [historyModal, setHistoryModal] = useState<{isOpen: boolean, customer: any}>({isOpen: false, customer: null});
+  const [customerHistory, setCustomerHistory] = useState<any[]>([]);
+
   const supabase = createClient();
 
   useEffect(() => {
@@ -119,6 +123,32 @@ export default function CustomersPage() {
     setIsPaying(false);
   };
 
+  const openHistory = async (customer: any) => {
+    setHistoryModal({ isOpen: true, customer });
+    const { data } = await supabase
+      .from("ventas")
+      .select("id, total, fecha, numero_ticket, estado")
+      .eq("cliente_id", customer.id)
+      .order("fecha", { ascending: false });
+    if (data) setCustomerHistory(data);
+  };
+
+  const exportCustomers = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Nombre,Documento,Email,Telefono,Puntos,Saldo Fiado\n";
+    customers.forEach(c => {
+       const row = [c.nombre, c.documento, c.email, c.telefono, c.puntos, c.saldo_pendiente].map(v => `"${v || ''}"`).join(",");
+       csvContent += row + "\n";
+    });
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "clientes_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredCustomers = customers.filter(c =>
     c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (c.documento && c.documento.includes(searchTerm))
@@ -172,6 +202,9 @@ export default function CustomersPage() {
             className="h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-lg shadow-emerald-100 rounded-2xl transition-all hover:-translate-y-0.5"
           >
             <Plus className="w-5 h-5 mr-2" /> Nuevo Cliente
+          </Button>
+          <Button variant="outline" onClick={exportCustomers} className="h-12 px-6 text-emerald-600 border-emerald-200 hover:bg-emerald-50 gap-2 font-black rounded-2xl text-slate-900">
+            Exportar Base
           </Button>
           <Button variant="outline" className="h-12 px-6 text-emerald-600 border-emerald-200 hover:bg-emerald-50 gap-2 font-black rounded-2xl text-slate-900">
             <MessageSquare className="w-5 h-5" /> Enviar Campaña
@@ -264,6 +297,12 @@ export default function CustomersPage() {
                   <TableCell className="text-center pr-8">
                     <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100">
                       <Button
+                        onClick={() => openHistory(item)}
+                        variant="ghost" title="Historial de Compras" size="icon" className="h-10 w-10 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl"
+                      >
+                        <History className="w-5 h-5" />
+                      </Button>
+                      <Button
                         onClick={() => {
                           setSelectedCustomer(item);
                           setIsDialogOpen(true);
@@ -344,6 +383,45 @@ export default function CustomersPage() {
                  {isPaying ? "Procesando..." : "Confirmar Abono"}
                </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={historyModal.isOpen} onOpenChange={(open) => setHistoryModal(prev => ({...prev, isOpen: open}))}>
+        <DialogContent className="max-w-2xl rounded-3xl p-6 bg-white border-none shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-slate-800">Historial de Compras</DialogTitle>
+            <DialogDescription className="text-slate-500 font-medium">
+              Cliente: <span className="font-bold text-slate-700">{historyModal.customer?.nombre}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 max-h-[60vh] overflow-y-auto">
+             {customerHistory.length === 0 ? (
+               <p className="text-center text-slate-400 font-bold py-8">No hay historial de compras.</p>
+             ) : (
+               <Table>
+                 <TableHeader>
+                   <TableRow>
+                     <TableHead>Fecha</TableHead>
+                     <TableHead>N° Ticket</TableHead>
+                     <TableHead>Estado</TableHead>
+                     <TableHead className="text-right">Total</TableHead>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {customerHistory.map(v => (
+                     <TableRow key={v.id}>
+                       <TableCell>{new Date(v.fecha).toLocaleDateString()}</TableCell>
+                       <TableCell className="font-bold">{v.numero_ticket || 'S/N'}</TableCell>
+                       <TableCell>
+                         <Badge variant={v.estado === 'completada' ? 'default' : 'secondary'}>{v.estado}</Badge>
+                       </TableCell>
+                       <TableCell className="text-right font-black">{formatCurrency(v.total)}</TableCell>
+                     </TableRow>
+                   ))}
+                 </TableBody>
+               </Table>
+             )}
           </div>
         </DialogContent>
       </Dialog>
