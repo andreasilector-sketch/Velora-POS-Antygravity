@@ -19,7 +19,8 @@ import {
   Save,
   Truck,
   FileText,
-  Calendar
+  Calendar,
+  PackageCheck
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -45,6 +46,9 @@ export default function PurchasesPage() {
   const [diasCredito, setDiasCredito] = useState(0);
   const [metodoPago, setMetodoPago] = useState("efectivo");
 
+  // Editing State
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   useEffect(() => {
     if (tenant) {
       fetchIngresos();
@@ -59,6 +63,7 @@ export default function PurchasesPage() {
       .select(`
         *,
         ingresos_inventario_items (
+          producto_id,
           cantidad,
           costo_unitario,
           subtotal,
@@ -113,33 +118,90 @@ export default function PurchasesPage() {
 
   const totalGlobal = items.reduce((acc, item) => acc + item.subtotal, 0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEdit = (ing: any) => {
+    setEditingId(ing.id);
+    setFactura(ing.numero_factura || "");
+    setProveedor(ing.proveedor || "");
+    setObservaciones(ing.observaciones || "");
+    setTipoPago(ing.tipo_pago || "contado");
+    setDiasCredito(ing.dias_credito || 0);
+    setMetodoPago(ing.metodo_pago || "efectivo");
+    
+    // Transform items from query result
+    const loadedItems = ing.ingresos_inventario_items.map((i: any) => ({
+      producto_id: i.producto_id,
+      nombre: i.productos?.nombre || "Producto desconocido",
+      cantidad: Number(i.cantidad),
+      costo_unitario: Number(i.costo_unitario),
+      subtotal: Number(i.subtotal)
+    }));
+    setItems(loadedItems);
+    setIsDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setFactura("");
+    setProveedor("");
+    setObservaciones("");
+    setTipoPago("contado");
+    setDiasCredito(0);
+    setMetodoPago("efectivo");
+    setItems([]);
+    setIsDialogOpen(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent, targetEstado: string = "completado") => {
+    if (e) e.preventDefault();
     if (items.length === 0) return alert("Agrega al menos un producto.");
     setIsSubmitting(true);
 
     try {
-      // 1. Crear el Ingreso (Cabecera)
-      const { data: ingreso, error: errIngreso } = await (supabase
-        .from("ingresos_inventario" as any) as any)
-        .insert({
-          tenant_id: tenant?.id,
-          numero_factura: factura,
-          proveedor: proveedor,
-          observaciones: observaciones,
-          total: totalGlobal,
-          tipo_pago: tipoPago,
-          dias_credito: tipoPago === "credito" ? diasCredito : 0,
-          metodo_pago: tipoPago === "contado" ? metodoPago : "cuentas_por_pagar"
-        })
-        .select()
-        .single();
+      let ingresoId = editingId;
 
-      if (errIngreso) throw errIngreso;
+      const payloadHeader = {
+        tenant_id: tenant?.id,
+        numero_factura: factura,
+        proveedor: proveedor,
+        observaciones: observaciones,
+        total: totalGlobal,
+        tipo_pago: tipoPago,
+        estado: targetEstado,
+        dias_credito: tipoPago === "credito" ? diasCredito : 0,
+        metodo_pago: tipoPago === "contado" ? metodoPago : "cuentas_por_pagar"
+      };
 
-      // 2. Crear los Detalles
+      if (editingId) {
+        // 1. Actualizar Cabecera
+        const { error: errUpdate } = await (supabase
+          .from("ingresos_inventario" as any) as any)
+          .update(payloadHeader)
+          .eq("id", editingId);
+        
+        if (errUpdate) throw errUpdate;
+
+        // 2. Eliminar Items anteriores para re-insertar
+        const { error: errDelete } = await (supabase
+          .from("ingresos_inventario_items" as any) as any)
+          .delete()
+          .eq("ingreso_id", editingId);
+        
+        if (errDelete) throw errDelete;
+      } else {
+        // 1. Crear el Ingreso (Cabecera)
+        const { data: ingreso, error: errIngreso } = await (supabase
+          .from("ingresos_inventario" as any) as any)
+          .insert(payloadHeader)
+          .select()
+          .single();
+
+        if (errIngreso) throw errIngreso;
+        ingresoId = ingreso.id;
+      }
+
+      // 3. Crear los Detalles
       const itemsPayload = items.map(i => ({
-        ingreso_id: ingreso.id,
+        ingreso_id: ingresoId,
         producto_id: i.producto_id,
         cantidad: i.cantidad,
         costo_unitario: i.costo_unitario,
@@ -153,17 +215,12 @@ export default function PurchasesPage() {
       if (errItems) throw errItems;
 
       // Reset y Recargar
-      setIsDialogOpen(false);
-      setFactura("");
-      setProveedor("");
-      setObservaciones("");
-      setTipoPago("contado");
-      setDiasCredito(0);
-      setMetodoPago("efectivo");
-      setItems([]);
+      resetForm();
       fetchIngresos();
       
-      alert("Ingreso guardado correctamente. El stock ha sido actualizado.");
+      alert(targetEstado === "completado" 
+        ? "Ingreso finalizado correctamente. El stock ha sido actualizado." 
+        : "Borrador guardado correctamente.");
     } catch (error: any) {
       alert("Error al guardar: " + error.message);
     } finally {
@@ -184,7 +241,7 @@ export default function PurchasesPage() {
                   <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
                     <PackagePlus className="w-6 h-6" />
                   </div>
-                  Nueva Entrada de Mercancía
+                  {editingId ? "Editar Entrada de Mercancía" : "Nueva Entrada de Mercancía"}
                 </DialogTitle>
               </DialogHeader>
               
@@ -351,11 +408,25 @@ export default function PurchasesPage() {
                 <p className="text-3xl font-black text-emerald-600">{formatCurrency(totalGlobal)}</p>
               </div>
               <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl font-bold px-6">
+                <Button type="button" variant="outline" onClick={() => resetForm()} className="rounded-xl font-bold px-6">
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting || items.length === 0} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black px-8">
-                  <Save className="w-4 h-4 mr-2" /> Guardar Ingreso
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  disabled={isSubmitting || items.length === 0} 
+                  onClick={(e) => handleSubmit(e, "borrador")}
+                  className="border-amber-200 text-amber-700 hover:bg-amber-50 rounded-xl font-bold px-6"
+                >
+                  <Save className="w-4 h-4 mr-2" /> Guardar Borrador
+                </Button>
+                <Button 
+                  type="button"
+                  disabled={isSubmitting || items.length === 0} 
+                  onClick={(e) => handleSubmit(e, "completado")}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black px-8"
+                >
+                  <PackageCheck className="w-4 h-4 mr-2" /> Finalizar e Ingresar Stock
                 </Button>
               </div>
             </div>
@@ -394,9 +465,9 @@ export default function PurchasesPage() {
                 <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest pl-8">Fecha</TableHead>
                 <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest">N° Factura</TableHead>
                 <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest">Proveedor</TableHead>
-                <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest">Pago</TableHead>
-                <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest">Items</TableHead>
-                <TableHead className="text-right font-bold text-slate-500 uppercase text-[10px] tracking-widest pr-8">Total</TableHead>
+                <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest">Total</TableHead>
+                <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest">Estado</TableHead>
+                <TableHead className="font-bold text-slate-500 uppercase text-[10px] tracking-widest text-right pr-8">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -417,25 +488,30 @@ export default function PurchasesPage() {
                     <span className="font-bold text-slate-800">{ing.proveedor}</span>
                   </TableCell>
                   <TableCell>
-                    {ing.tipo_pago === 'credito' ? (
-                       <span className="text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded-md">Crédito ({ing.dias_credito}d)</span>
-                    ) : (
-                       <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Contado ({ing.metodo_pago})</span>
-                    )}
+                    <span className="font-black text-slate-900">{formatCurrency(ing.total)}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
-                      {ing.ingresos_inventario_items?.length || 0} productos
-                    </span>
+                    {ing.estado === 'borrador' ? (
+                      <span className="text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-200">Borrador</span>
+                    ) : (
+                      <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">Completado</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right pr-8">
-                    <span className="font-black text-slate-900 text-base">{formatCurrency(ing.total)}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleEdit(ing)}
+                      className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 font-bold rounded-lg"
+                    >
+                      {ing.estado === 'borrador' ? "Continuar" : "Ver / Editar"}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
               {ingresos.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-32 bg-slate-50/10">
+                  <TableCell colSpan={6} className="text-center py-32 bg-slate-50/10">
                     <div className="flex flex-col items-center gap-4 opacity-50">
                       <PackagePlus className="w-16 h-16 text-slate-300" />
                       <p className="text-slate-500 font-bold italic">No hay entradas de mercancía registradas.</p>
