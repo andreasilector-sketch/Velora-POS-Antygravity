@@ -99,7 +99,8 @@ export default function PurchasesPage() {
         nombre: prod.nombre,
         cantidad: 1,
         costo_unitario: prod.precio_compra || 0,
-        subtotal: prod.precio_compra || 0
+        impuesto_porcentaje: prod.impuesto_porcentaje || 0,
+        subtotal: (prod.precio_compra || 0) * (1 + (prod.impuesto_porcentaje || 0) / 100)
       }]);
     }
     setSearchTerm("");
@@ -108,7 +109,12 @@ export default function PurchasesPage() {
   const updateItem = (index: number, field: string, value: number) => {
     const newItems = [...items];
     newItems[index][field] = value;
-    newItems[index].subtotal = newItems[index].cantidad * newItems[index].costo_unitario;
+    
+    const qty = newItems[index].cantidad || 0;
+    const cost = newItems[index].costo_unitario || 0;
+    const tax = newItems[index].impuesto_porcentaje || 0;
+    
+    newItems[index].subtotal = qty * (cost * (1 + tax / 100));
     setItems(newItems);
   };
 
@@ -133,6 +139,7 @@ export default function PurchasesPage() {
       nombre: i.productos?.nombre || "Producto desconocido",
       cantidad: Number(i.cantidad),
       costo_unitario: Number(i.costo_unitario),
+      impuesto_porcentaje: Number(i.impuesto_porcentaje || 0),
       subtotal: Number(i.subtotal)
     }));
     setItems(loadedItems);
@@ -205,6 +212,8 @@ export default function PurchasesPage() {
         producto_id: i.producto_id,
         cantidad: i.cantidad,
         costo_unitario: i.costo_unitario,
+        impuesto_porcentaje: i.impuesto_porcentaje,
+        impuesto_valor: (i.costo_unitario * (i.impuesto_porcentaje / 100)) * i.cantidad,
         subtotal: i.subtotal
       }));
 
@@ -233,8 +242,8 @@ export default function PurchasesPage() {
       
       {/* Modal de Nueva Entrada */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-[95vw] md:max-w-[85vw] lg:max-w-5xl w-full p-0 overflow-hidden bg-slate-50 border-none rounded-[2rem] shadow-2xl">
-          <form onSubmit={handleSubmit} className="flex flex-col h-[85vh] md:h-[80vh]">
+        <DialogContent className="max-w-[98vw] md:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[1400px] w-full p-0 overflow-hidden bg-slate-50 border-none rounded-[2rem] shadow-2xl">
+          <form onSubmit={handleSubmit} className="flex flex-col h-[92vh] md:h-[88vh]">
             <div className="p-6 bg-white border-b border-slate-100 flex-shrink-0">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black text-slate-800 flex items-center gap-3">
@@ -381,6 +390,18 @@ export default function PurchasesPage() {
                               className="h-8 pl-5 font-bold text-slate-700"
                             />
                           </div>
+                        </div>
+                        <div className="w-24">
+                          <Label className="text-[9px] font-black text-slate-400 uppercase">Impuesto (%)</Label>
+                          <select 
+                            value={item.impuesto_porcentaje || 0}
+                            onChange={(e) => updateItem(idx, "impuesto_porcentaje", Number(e.target.value))}
+                            className="w-full flex h-8 items-center justify-between rounded-md border border-slate-200 bg-white px-2 py-1 text-xs ring-offset-white font-bold text-indigo-700"
+                          >
+                            <option value={0}>0% (Exento)</option>
+                            <option value={5}>5% (IVA)</option>
+                            <option value={19}>19% (IVA)</option>
+                          </select>
                         </div>
                         <div className="w-28 text-right pr-2">
                           <Label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Subtotal</Label>
