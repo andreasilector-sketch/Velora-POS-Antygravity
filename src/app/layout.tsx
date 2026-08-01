@@ -13,8 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Velora POS",
-  description: "Punto de Venta Naturista",
+  title: "Velora POS - Punto de Venta Naturista e Inventario",
+  description: "Sistema inteligente de punto de venta e inventario",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -24,7 +24,11 @@ import {
   ArrowRightLeft,
   Info,
   Layers,
-  Calendar
+  Calendar,
+  Image as ImageIcon,
+  Upload,
+  X,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -35,6 +39,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
   const { tenant } = useUserProfile();
   const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const supabase = createClient();
 
   const { register, handleSubmit, setValue, watch, reset, control, formState: { errors } } = useForm({
@@ -42,6 +47,7 @@ export function ProductForm({ product, onSave, onCancel }: any) {
       nombre: "",
       sku: `REF-${Math.floor(10000 + Math.random() * 90000)}`,
       codigo_barras: "",
+      imagen_url: product?.imagen_url || null,
       precio_compra: 0,
       precio_venta: 0,
       precio_minimo: 0,
@@ -115,17 +121,78 @@ export function ProductForm({ product, onSave, onCancel }: any) {
     if (data) setCategories(data);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      // Compress image to WebP low resolution using canvas to save bandwidth/space (<100KB)
+      const compressedDataUrl = await new Promise<string>((resolve, reject) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxDim = 320; // max 320px width/height for minimal storage
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/webp", 0.75);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+      });
+
+      // Upload to Supabase Storage bucket 'productos'
+      const fileName = `prod_${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+      const res = await fetch(compressedDataUrl);
+      const blob = await res.blob();
+
+      const { data: uploadData, error: uploadErr } = await supabase.storage
+        .from("productos")
+        .upload(fileName, blob, { contentType: "image/webp", upsert: true });
+
+      if (!uploadErr && uploadData?.path) {
+        const { data: publicUrlData } = supabase.storage.from("productos").getPublicUrl(uploadData.path);
+        setValue("imagen_url", publicUrlData.publicUrl, { shouldDirty: true });
+      } else {
+        // Fallback to storing lightweight compressed webp data URL
+        setValue("imagen_url", compressedDataUrl, { shouldDirty: true });
+      }
+    } catch (error) {
+      console.error("Error cargando imagen:", error);
+      alert("No se pudo procesar la imagen. Intenta con otra imagen.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const onSubmit = async (formData: any, estado: string = 'activo') => {
     if (!tenant) return;
     setIsLoading(true);
     
     try {
-      // Explicitly pick only matching database columns to prevent Supabase errors
+      // Explicitly pick matching database columns
       const payload = {
         tenant_id: tenant.id,
         nombre: formData.nombre,
         sku: formData.sku || null,
         codigo_barras: formData.codigo_barras || null,
+        imagen_url: formData.imagen_url || null,
         categoria_id: formData.categoria_id && formData.categoria_id !== "" ? formData.categoria_id : null,
         stock_minimo: Number(formData.stock_minimo) || 0,
         stock_actual: Number(formData.stock_actual) || 0,
@@ -496,6 +563,66 @@ export function ProductForm({ product, onSave, onCancel }: any) {
         {/* COLUMNA DERECHA: CONFIG & IA (4 cols) */}
         <div className="lg:col-span-4 space-y-4">
           
+          {/* SECCIÓN: IMAGEN DEL PRODUCTO (Top Right Bento Cell) */}
+          <div className="bg-slate-50/50 p-4 rounded-[1.5rem] border border-slate-100 space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-emerald-500" /> Imagen del Producto
+              </h3>
+              <Badge variant="outline" className="text-[9px] bg-emerald-50 text-emerald-700 border-emerald-200 font-bold px-1.5">
+                WEBP / BAJA RES
+              </Badge>
+            </div>
+
+            <div className="relative group">
+              {watch("imagen_url") ? (
+                <div className="relative w-full h-32 rounded-xl overflow-hidden border border-slate-200 bg-white flex items-center justify-center shadow-inner">
+                  <img 
+                    src={watch("imagen_url")} 
+                    alt="Vista previa del producto" 
+                    className="w-full h-full object-contain p-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setValue("imagen_url", null, { shouldDirty: true })}
+                    className="absolute top-2 right-2 p-1.5 bg-rose-500 text-white rounded-lg shadow-md hover:bg-rose-600 transition-all"
+                    title="Eliminar imagen"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full h-32 rounded-xl border-2 border-dashed border-slate-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/30 cursor-pointer transition-all p-3 text-center group">
+                  {uploadingImage ? (
+                    <div className="flex flex-col items-center gap-1 text-emerald-600">
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <span className="text-xs font-bold">Optimizando WebP...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="p-2 bg-slate-100 text-slate-500 group-hover:bg-emerald-500 group-hover:text-white rounded-xl transition-all mb-1">
+                        <Upload className="w-4 h-4" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-700 group-hover:text-emerald-700">
+                        Cargar imagen del producto
+                      </p>
+                      <p className="text-[9px] text-slate-400 font-medium mt-0.5">
+                        Compresión automática a .webp (&lt;100KB)
+                      </p>
+                    </>
+                  )}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                    className="hidden" 
+                    disabled={uploadingImage}
+                  />
+                </label>
+              )}
+            </div>
+          </div>
+
           {/* SECCIÓN: ESTRUCTURA (Bento Cell) */}
           <div className={cn(
             "p-5 rounded-[1.5rem] border transition-all space-y-3 flex flex-col justify-between h-fit",

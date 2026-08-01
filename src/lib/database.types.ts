@@ -727,6 +727,7 @@ export type Database = {
           tenant_id: string
           tiene_vencimiento: boolean | null
           fecha_vencimiento: string | null
+          imagen_url: string | null
           tipo_precio: string | null
           updated_at: string
         }
@@ -755,6 +756,7 @@ export type Database = {
           tenant_id: string
           tiene_vencimiento?: boolean | null
           fecha_vencimiento?: string | null
+          imagen_url?: string | null
           tipo_precio?: string | null
           updated_at?: string
         }
@@ -783,6 +785,7 @@ export type Database = {
           tenant_id?: string
           tiene_vencimiento?: boolean | null
           fecha_vencimiento?: string | null
+          imagen_url?: string | null
           tipo_precio?: string | null
           updated_at?: string
         }

@@ -121,6 +121,7 @@ export default function ProductsPage() {
       "Nombre": p.nombre,
       "SKU": p.sku,
       "Codigo_Barras": p.codigo_barras,
+      "Imagen_URL": (p as any).imagen_url || "",
       "Categoria": (p as any).categorias?.nombre || "",
       "Precio_Compra": p.precio_compra,
       "Precio_Venta": p.precio_venta,
@@ -431,9 +432,16 @@ export default function ProductsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="py-2">
-                    <div className="max-w-[200px] xl:max-w-[300px]">
-                      <p className="font-bold text-slate-800 text-sm group-hover:text-emerald-700 transition-colors truncate">{prod.nombre}</p>
-                      <p className="text-[10px] text-slate-400 truncate">{(prod as any).categorias?.nombre || "General"}</p>
+                    <div className="flex items-center gap-2.5 max-w-[200px] xl:max-w-[300px]">
+                      {(prod as any).imagen_url && (
+                        <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 flex-shrink-0 flex items-center justify-center p-0.5 shadow-sm">
+                          <img src={(prod as any).imagen_url} alt={prod.nombre} className="w-full h-full object-contain" />
+                        </div>
+                      )}
+                      <div className="truncate">
+                        <p className="font-bold text-slate-800 text-sm group-hover:text-emerald-700 transition-colors truncate">{prod.nombre}</p>
+                        <p className="text-[10px] text-slate-400 truncate">{(prod as any).categorias?.nombre || "General"}</p>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-2">
